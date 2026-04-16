@@ -216,6 +216,7 @@ svg#connections * {
 }
 
 .port {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -244,11 +245,13 @@ svg#connections * {
 }
 
 .port-in .port-dot {
-  margin-left: -14px;
+  position: absolute;
+  left: -6px;
 }
 
 .port-out .port-dot {
-  margin-right: -14px;
+  position: absolute;
+  right: -6px;
 }
 
 .port-dot:hover {
@@ -276,6 +279,8 @@ svg#connections * {
   stroke: #6c5ce7;
   stroke-width: 2.5;
   fill: none;
+  pointer-events: stroke;
+  cursor: pointer;
   transition: stroke-width 0.15s;
 }
 
@@ -309,16 +314,19 @@ svg#connections * {
   gap: 8px;
 }
 
-.sidebar-title .back-btn {
+.back-btn {
   background: none;
-  border: none;
+  border: 1px solid var(--border);
   color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 4px;
   cursor: pointer;
+  margin-right: 8px;
   font-size: 14px;
-  padding: 0;
 }
 
-.sidebar-title .back-btn:hover {
+.back-btn:hover {
+  border-color: var(--accent);
   color: var(--text);
 }
 
@@ -452,11 +460,45 @@ select.setting-input {
   transform: translateX(16px);
 }
 
+/* Small toggle slider variant for settings */
+.toggle-slider-sm {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--border);
+  border-radius: 10px;
+  transition: 0.25s;
+}
+
+.toggle-slider-sm::before {
+  content: "";
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.25s;
+}
+
+.setting-toggle input:checked + .toggle-slider-sm {
+  background: var(--accent);
+}
+
+.setting-toggle input:checked + .toggle-slider-sm::before {
+  transform: translateX(16px);
+}
+
 /* Settings preview */
+.setting-preview {
+  margin-top: 8px;
+}
+
 .setting-preview img {
   max-width: 100%;
-  border-radius: 6px;
-  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
   display: block;
 }
 
@@ -464,15 +506,17 @@ select.setting-input {
 .upload-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 8px 16px;
   background: var(--accent);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  width: 100%;
   transition: background 0.15s;
 }
 
@@ -579,8 +623,13 @@ select.setting-input {
 }
 
 #logPanel.collapsed {
-  height: 32px;
+  height: auto;
+  min-height: 0;
   overflow: hidden;
+}
+
+#logPanel.collapsed .log-content {
+  display: none;
 }
 
 #logPanel::-webkit-scrollbar { width: 6px; }
