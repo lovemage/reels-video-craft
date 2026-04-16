@@ -2,7 +2,7 @@
 // Manages node instances: CRUD operations, drag, selection, deletion.
 
 import { NODE_TYPES } from './node-types.js';
-import { createNodeElement, setNodeState } from './node-renderer.js';
+import { createNodeElement } from './node-renderer.js';
 
 export class NodeManager {
   constructor(canvasEl, canvasInstance) {
