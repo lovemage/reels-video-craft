@@ -4,7 +4,723 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seedance Studio</title>
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+/* ===== CSS Variables / Color Scheme ===== */
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --surface-2: #1a1a24;
+  --border: #2a2a3a;
+  --border-hover: #3a3a5a;
+  --text: #e4e4ef;
+  --text-muted: #8888a0;
+  --accent: #6c5ce7;
+  --accent-hover: #7d6ff0;
+  --accent-glow: rgba(108, 92, 231, 0.15);
+  --success: #00b894;
+  --warning: #fdcb6e;
+  --danger: #e17055;
+  --node-image: #00b894;
+  --node-video: #6c5ce7;
+  --node-upload: #fdcb6e;
+  --node-preview: #0984e3;
+  --radius: 10px;
+}
+
+/* ===== Reset ===== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ===== Layout ===== */
+
+/* Topbar: fixed 48px at top, full width */
+#topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 16px;
+  z-index: 100;
+}
+
+/* Sidebar: fixed 280px on left, below topbar */
+#sidebar {
+  position: fixed;
+  top: 48px;
+  left: 0;
+  width: 280px;
+  bottom: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 90;
+}
+
+#sidebar::-webkit-scrollbar { width: 6px; }
+#sidebar::-webkit-scrollbar-track { background: transparent; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Canvas wrapper: fills remaining space */
+#canvasWrapper {
+  position: fixed;
+  top: 48px;
+  left: 280px;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ===== Canvas ===== */
+
+/* Dot grid background */
+#canvasWrapper {
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 20px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 20px);
+  background-size: 20px 20px;
+  cursor: grab;
+}
+
+#canvasWrapper.panning {
+  cursor: grabbing;
+}
+
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  width: 0;
+  height: 0;
+}
+
+svg#connections {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+svg#connections * {
+  pointer-events: auto;
+}
+
+/* ===== Nodes (240px wide) ===== */
+.node {
+  position: absolute;
+  width: 240px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  user-select: none;
+  cursor: default;
+  z-index: 1;
+}
+
+.node.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow), 0 4px 16px rgba(108, 92, 231, 0.25);
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.node-header .node-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.node-header .node-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-header .node-delete {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.node-header .node-delete:hover {
+  color: var(--danger);
+}
+
+/* Header colors by node type */
+.node[data-type="image"] .node-header   { background: var(--node-image); }
+.node[data-type="video"] .node-header   { background: var(--node-video); }
+.node[data-type="upload"] .node-header  { background: var(--node-upload); color: #1a1a24; }
+.node[data-type="preview"] .node-header { background: var(--node-preview); }
+
+.node-body {
+  padding: 12px;
+}
+
+.node-preview-thumb img,
+.node-preview-thumb video {
+  max-width: 100%;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Ports */
+.node-ports {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0 8px;
+}
+
+.node-ports-in,
+.node-ports-out {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.node-ports-in {
+  align-items: flex-start;
+}
+
+.node-ports-out {
+  align-items: flex-end;
+}
+
+.port {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 2px 8px;
+}
+
+.port-in {
+  flex-direction: row;
+}
+
+.port-out {
+  flex-direction: row-reverse;
+}
+
+.port-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+  cursor: crosshair;
+  flex-shrink: 0;
+  transition: box-shadow 0.15s;
+}
+
+.port-in .port-dot {
+  position: absolute;
+  left: -6px;
+}
+
+.port-out .port-dot {
+  position: absolute;
+  right: -6px;
+}
+
+.port-dot:hover {
+  box-shadow: 0 0 0 4px var(--accent-glow), 0 0 8px var(--accent);
+}
+
+/* ===== Node States ===== */
+.node.state-running {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.node.state-complete {
+  border-color: var(--success);
+  box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.node.state-error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 2px rgba(225, 112, 85, 0.15), 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: shake 0.4s ease-in-out;
+}
+
+/* ===== Connections (SVG) ===== */
+.connection-path {
+  stroke: #6c5ce7;
+  stroke-width: 2.5;
+  fill: none;
+  pointer-events: stroke;
+  cursor: pointer;
+  transition: stroke-width 0.15s;
+}
+
+.connection-path:hover {
+  stroke-width: 3.5;
+  stroke: #7d6ff0;
+}
+
+.connection-temp {
+  stroke: #6c5ce7;
+  stroke-width: 2;
+  stroke-dasharray: 8 4;
+  fill: none;
+  opacity: 0.6;
+}
+
+/* ===== Sidebar ===== */
+.sidebar-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.back-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.palette-category {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  padding: 8px 0 4px;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: grab;
+  transition: background 0.15s;
+  font-size: 13px;
+}
+
+.palette-item:hover {
+  background: var(--surface-2);
+}
+
+.palette-item:active {
+  cursor: grabbing;
+}
+
+.palette-item .palette-icon {
+  font-size: 18px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.palette-item .palette-label {
+  flex: 1;
+}
+
+/* Settings panel */
+.setting-group {
+  margin-bottom: 14px;
+}
+
+.setting-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.setting-label .required {
+  color: var(--danger);
+  margin-left: 2px;
+}
+
+.setting-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.setting-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+textarea.setting-input {
+  resize: vertical;
+  min-height: 60px;
+}
+
+select.setting-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238888a0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* Toggle switch */
+.setting-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  display: inline-block;
+}
+
+.setting-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.setting-toggle .toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--border);
+  border-radius: 10px;
+  transition: 0.25s;
+}
+
+.setting-toggle .toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.25s;
+}
+
+.setting-toggle input:checked + .toggle-slider {
+  background: var(--accent);
+}
+
+.setting-toggle input:checked + .toggle-slider::before {
+  transform: translateX(16px);
+}
+
+/* Small toggle slider variant for settings */
+.toggle-slider-sm {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--border);
+  border-radius: 10px;
+  transition: 0.25s;
+}
+
+.toggle-slider-sm::before {
+  content: "";
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.25s;
+}
+
+.setting-toggle input:checked + .toggle-slider-sm {
+  background: var(--accent);
+}
+
+.setting-toggle input:checked + .toggle-slider-sm::before {
+  transform: translateX(16px);
+}
+
+/* Settings preview */
+.setting-preview {
+  margin-top: 8px;
+}
+
+.setting-preview img {
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+/* Upload button */
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s;
+}
+
+.upload-btn:hover {
+  background: var(--accent-hover);
+}
+
+/* ===== Topbar ===== */
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.topbar-brand .brand-logo {
+  width: 24px;
+  height: 24px;
+}
+
+.topbar-key-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.topbar-key-group label {
+  white-space: nowrap;
+}
+
+.topbar-key-group input[type="password"],
+.topbar-key-group input[type="text"] {
+  width: 180px;
+  padding: 5px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+}
+
+.topbar-key-group input:focus {
+  border-color: var(--accent);
+}
+
+.topbar-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.topbar-btn-primary {
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  color: #fff;
+}
+
+.topbar-btn-primary:hover {
+  box-shadow: 0 2px 12px rgba(108, 92, 231, 0.4);
+}
+
+.topbar-btn-secondary {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.topbar-btn-secondary:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
+/* ===== Log Panel ===== */
+#logPanel {
+  position: fixed;
+  bottom: 0;
+  left: 280px;
+  right: 0;
+  height: 150px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+  overflow-y: auto;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  transition: height 0.2s ease;
+}
+
+#logPanel.collapsed {
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#logPanel.collapsed .log-content {
+  display: none;
+}
+
+#logPanel::-webkit-scrollbar { width: 6px; }
+#logPanel::-webkit-scrollbar-track { background: transparent; }
+#logPanel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.log-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--surface-2);
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.log-toggle:hover {
+  color: var(--text);
+}
+
+.log-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.log-entry {
+  padding: 3px 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.log-entry.error {
+  color: var(--danger);
+}
+
+.log-entry.success {
+  color: var(--success);
+}
+
+.log-time {
+  color: var(--accent);
+  margin-right: 8px;
+}
+
+/* ===== Animations ===== */
+@keyframes pulse {
+  0%, 100% {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow), 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    border-color: var(--accent-hover);
+    box-shadow: 0 0 0 4px var(--accent-glow), 0 4px 16px rgba(108, 92, 231, 0.3);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+/* ===== Scrollbar Global ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ===== Utility ===== */
+.hidden {
+  display: none !important;
+}
+  </style>
 </head>
 <body>
 
@@ -97,6 +813,1519 @@
     </div>
   </div>
 
-  <script type="module" src="js/app.js"></script>
+  <script>
+(function() {
+
+// ===== Node Type Registry =====
+// Defines all available node types with ports, defaults, and settings schemas.
+
+const NODE_TYPES = {
+  'image-generator': {
+    label: 'Image Generator',
+    category: 'Generation',
+    color: 'var(--node-image)',
+    icon: '\u{1F5BC}\uFE0F',
+    inputs: [],
+    outputs: [{ id: 'image', type: 'image', label: 'Image' }],
+    defaults: {
+      prompt: '',
+      model: 'imagen-4.0-generate-001',
+      aspectRatio: '1:1',
+      style: '',
+      negative: ''
+    },
+    settings: [
+      { key: 'prompt', type: 'textarea', label: 'Prompt', required: true, placeholder: 'Describe the image...' },
+      {
+        key: 'model', type: 'select', label: 'Model',
+        options: [
+          { value: 'imagen-4.0-generate-001', label: 'Standard' },
+          { value: 'imagen-4.0-fast-generate-001', label: 'Fast' },
+          { value: 'imagen-4.0-ultra-generate-001', label: 'Ultra' }
+        ]
+      },
+      {
+        key: 'aspectRatio', type: 'select', label: 'Aspect Ratio',
+        options: [
+          { value: '1:1', label: '1:1' },
+          { value: '16:9', label: '16:9' },
+          { value: '9:16', label: '9:16' },
+          { value: '4:3', label: '4:3' },
+          { value: '3:4', label: '3:4' }
+        ]
+      },
+      { key: 'style', type: 'text', label: 'Style', placeholder: 'e.g. photorealistic, watercolor, anime...' },
+      { key: 'negative', type: 'text', label: 'Negative Prompt', placeholder: 'e.g. no text, no watermark...' }
+    ]
+  },
+
+  'image-upload': {
+    label: 'Image Upload',
+    category: 'Input',
+    color: 'var(--node-upload)',
+    icon: '\u{1F4C1}',
+    inputs: [],
+    outputs: [{ id: 'image', type: 'image', label: 'Image' }],
+    defaults: {
+      imageUrl: '',
+      imageData: null
+    },
+    settings: [
+      { key: 'imageUrl', type: 'url', label: 'Image URL', placeholder: 'https://example.com/image.jpg' },
+      { key: '_upload', type: 'file', label: 'Upload Image', accept: 'image/*' }
+    ]
+  },
+
+  'video-generator': {
+    label: 'Video Generator',
+    category: 'Generation',
+    color: 'var(--node-video)',
+    icon: '\u{1F3AC}',
+    inputs: [
+      { id: 'first_frame', type: 'image', label: 'First Frame' },
+      { id: 'last_frame', type: 'image', label: 'Last Frame' },
+      { id: 'ref_images', type: 'image', label: 'Ref Images', multiple: true }
+    ],
+    outputs: [{ id: 'video', type: 'video', label: 'Video' }],
+    defaults: {
+      prompt: '',
+      duration: 5,
+      resolution: '720p',
+      aspectRatio: '',
+      size: '',
+      seed: '',
+      generateAudio: false
+    },
+    settings: [
+      { key: 'prompt', type: 'textarea', label: 'Prompt', required: true, placeholder: 'Describe the video motion...' },
+      { key: 'duration', type: 'number', label: 'Duration (s)', min: 1, max: 30, step: 1 },
+      {
+        key: 'resolution', type: 'select', label: 'Resolution',
+        options: [
+          { value: '', label: 'Auto' },
+          { value: '480p', label: '480p ($0.0538/s)' },
+          { value: '720p', label: '720p ($0.121/s)' },
+          { value: '1080p', label: '1080p ($0.2722/s)' },
+          { value: '1K', label: '1K' },
+          { value: '2K', label: '2K' },
+          { value: '4K', label: '4K' }
+        ]
+      },
+      {
+        key: 'aspectRatio', type: 'select', label: 'Aspect Ratio',
+        options: [
+          { value: '', label: 'Auto' },
+          { value: '16:9', label: '16:9' },
+          { value: '9:16', label: '9:16' },
+          { value: '1:1', label: '1:1' },
+          { value: '4:3', label: '4:3' },
+          { value: '3:4', label: '3:4' },
+          { value: '21:9', label: '21:9' },
+          { value: '9:21', label: '9:21' }
+        ]
+      },
+      { key: 'size', type: 'text', label: 'Size', placeholder: 'e.g. 1280x720' },
+      { key: 'seed', type: 'number', label: 'Seed', placeholder: 'Random if empty' },
+      { key: 'generateAudio', type: 'toggle', label: 'Generate Audio' }
+    ]
+  },
+
+  'preview': {
+    label: 'Preview',
+    category: 'Output',
+    color: 'var(--node-preview)',
+    icon: '\u{1F441}\uFE0F',
+    inputs: [{ id: 'media', type: 'any', label: 'Media' }],
+    outputs: [],
+    defaults: {},
+    settings: []
+  }
+};
+
+// Port compatibility map — which output types can connect to which input types
+const PORT_COMPAT = {
+  'image': ['image', 'any'],
+  'video': ['video', 'any'],
+  'any': ['image', 'video', 'any']
+};
+
+// ===== Node Renderer =====
+// Creates and updates node DOM elements on the canvas.
+
+/**
+ * Create a DOM element for a node.
+ * @param {Object} node - { id, type, x, y, data, state }
+ * @returns {HTMLElement} The node element
+ */
+function createNodeElement(node) {
+  const typeDef = NODE_TYPES[node.type];
+  if (!typeDef) {
+    console.error(`Unknown node type: ${node.type}`);
+    return null;
+  }
+
+  const el = document.createElement('div');
+  el.className = 'node';
+  if (node.state && node.state !== 'idle') {
+    el.classList.add(`state-${node.state}`);
+  }
+  el.dataset.nodeId = node.id;
+  el.style.left = `${node.x}px`;
+  el.style.top = `${node.y}px`;
+
+  // --- Header ---
+  const header = document.createElement('div');
+  header.className = 'node-header';
+  header.style.background = typeDef.color;
+
+  const icon = document.createElement('span');
+  icon.className = 'node-icon';
+  icon.textContent = typeDef.icon;
+
+  const title = document.createElement('span');
+  title.className = 'node-title';
+  title.textContent = typeDef.label;
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'node-delete';
+  deleteBtn.textContent = '\u00D7';
+  deleteBtn.title = 'Delete node';
+
+  header.append(icon, title, deleteBtn);
+
+  // --- Body ---
+  const body = document.createElement('div');
+  body.className = 'node-body';
+
+  const thumb = document.createElement('div');
+  thumb.className = 'node-preview-thumb';
+  thumb.dataset.nodeId = node.id;
+  body.appendChild(thumb);
+
+  // --- Ports container ---
+  const ports = document.createElement('div');
+  ports.className = 'node-ports';
+
+  // Input ports (left side)
+  const portsIn = document.createElement('div');
+  portsIn.className = 'node-ports-in';
+  for (const input of typeDef.inputs) {
+    portsIn.appendChild(createPortElement(node.id, input, 'in'));
+  }
+
+  // Output ports (right side)
+  const portsOut = document.createElement('div');
+  portsOut.className = 'node-ports-out';
+  for (const output of typeDef.outputs) {
+    portsOut.appendChild(createPortElement(node.id, output, 'out'));
+  }
+
+  ports.append(portsIn, portsOut);
+
+  // --- Assemble ---
+  el.append(header, body, ports);
+  return el;
+}
+
+/**
+ * Create a single port element.
+ */
+function createPortElement(nodeId, portDef, direction) {
+  const port = document.createElement('div');
+  port.className = `port port-${direction}`;
+  port.dataset.nodeId = nodeId;
+  port.dataset.portId = portDef.id;
+  port.dataset.portType = portDef.type;
+
+  const dot = document.createElement('div');
+  dot.className = 'port-dot';
+
+  const label = document.createElement('span');
+  label.className = 'port-label';
+  label.textContent = portDef.label;
+
+  if (direction === 'in') {
+    // dot first, then label
+    port.append(dot, label);
+  } else {
+    // label first, then dot
+    port.append(label, dot);
+  }
+
+  return port;
+}
+
+/**
+ * Update the thumbnail preview inside a node.
+ * @param {string} nodeId
+ * @param {string} mediaUrl - URL or data URI of the media
+ * @param {'image'|'video'} mediaType
+ */
+function updateNodeThumbnail(nodeId, mediaUrl, mediaType) {
+  const thumb = document.querySelector(`.node-preview-thumb[data-node-id="${nodeId}"]`);
+  if (!thumb) return;
+
+  if (mediaType === 'image') {
+    thumb.innerHTML = `<img src="${mediaUrl}" alt="Preview" />`;
+  } else if (mediaType === 'video') {
+    thumb.innerHTML = `<video src="${mediaUrl}" muted autoplay loop></video>`;
+  }
+}
+
+/**
+ * Set the visual state of a node.
+ * @param {string} nodeId
+ * @param {'idle'|'running'|'complete'|'error'} state
+ */
+function setNodeState(nodeId, state) {
+  const el = document.querySelector(`.node[data-node-id="${nodeId}"]`);
+  if (!el) return;
+
+  // Remove all existing state classes
+  el.classList.remove('state-idle', 'state-running', 'state-complete', 'state-error');
+
+  // Add the new state class (skip for idle — it's the default)
+  if (state && state !== 'idle') {
+    el.classList.add(`state-${state}`);
+  }
+}
+
+// ===== Canvas =====
+
+class Canvas {
+  constructor(wrapperEl, canvasEl, svgEl) {
+    this.wrapper = wrapperEl;
+    this.canvas = canvasEl;
+    this.svg = svgEl;
+
+    this.scale = 1;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.isPanning = false;
+
+    this._applyTransform();
+    this._bindEvents();
+  }
+
+  /**
+   * Convert screen (client) coordinates to canvas coordinates.
+   */
+  screenToCanvas(screenX, screenY) {
+    const rect = this.wrapper.getBoundingClientRect();
+    return {
+      x: (screenX - rect.left - this.offsetX) / this.scale,
+      y: (screenY - rect.top - this.offsetY) / this.scale,
+    };
+  }
+
+  /**
+   * Convert canvas coordinates to screen (client) coordinates.
+   */
+  canvasToScreen(cx, cy) {
+    const rect = this.wrapper.getBoundingClientRect();
+    return {
+      x: cx * this.scale + this.offsetX + rect.left,
+      y: cy * this.scale + this.offsetY + rect.top,
+    };
+  }
+
+  /**
+   * Apply the current transform to both the canvas div and the SVG overlay.
+   */
+  _applyTransform() {
+    const t = `translate(${this.offsetX}px, ${this.offsetY}px) scale(${this.scale})`;
+    this.canvas.style.transform = t;
+    this.svg.style.transform = t;
+  }
+
+  /**
+   * Bind pointer and wheel events for panning and zooming.
+   */
+  _bindEvents() {
+    // --- Panning ---
+    this.wrapper.addEventListener('pointerdown', (e) => {
+      // Middle-click always pans
+      if (e.button === 1) {
+        this._startPan(e);
+        return;
+      }
+      // Left-click pans only if clicking on the wrapper or canvas itself (not on nodes)
+      if (e.button === 0 && (e.target === this.wrapper || e.target === this.canvas || e.target === this.svg)) {
+        this._startPan(e);
+      }
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!this.isPanning) return;
+      this.offsetX += e.clientX - this._panStartX;
+      this.offsetY += e.clientY - this._panStartY;
+      this._panStartX = e.clientX;
+      this._panStartY = e.clientY;
+      this._applyTransform();
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (this.isPanning) {
+        this.isPanning = false;
+        this.wrapper.classList.remove('panning');
+        this.wrapper.releasePointerCapture(this._panPointerId);
+      }
+    });
+
+    // --- Zooming ---
+    this.wrapper.addEventListener('wheel', (e) => {
+      e.preventDefault();
+
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      const newScale = Math.min(3, Math.max(0.2, this.scale * delta));
+
+      const rect = this.wrapper.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      this.offsetX = mx - (mx - this.offsetX) * (newScale / this.scale);
+      this.offsetY = my - (my - this.offsetY) * (newScale / this.scale);
+      this.scale = newScale;
+
+      this._applyTransform();
+    }, { passive: false });
+  }
+
+  /**
+   * Start a pan operation.
+   */
+  _startPan(e) {
+    this.isPanning = true;
+    this._panStartX = e.clientX;
+    this._panStartY = e.clientY;
+    this._panPointerId = e.pointerId;
+    this.wrapper.setPointerCapture(e.pointerId);
+    this.wrapper.classList.add('panning');
+  }
+
+  /**
+   * Reset the view to default (scale 1, centered at origin).
+   */
+  resetView() {
+    this.scale = 1;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this._applyTransform();
+  }
+}
+
+// ===== Node Manager =====
+// Manages node instances: CRUD operations, drag, selection, deletion.
+
+class NodeManager {
+  constructor(canvasEl, canvasInstance) {
+    this.canvas = canvasInstance;       // Canvas class for coordinate conversion
+    this.canvasEl = canvasEl;           // DOM element (#canvas) to append nodes to
+    this.nodes = new Map();             // id -> { id, type, x, y, data, state, el, output }
+    this.selectedNodeId = null;
+    this.nextId = 1;
+    this._dragState = null;
+
+    // Callbacks (set by app.js)
+    this.onNodeSelected = null;         // callback(node|null)
+    this.onNodeMoved = null;            // callback(nodeId)
+    this.onNodeDeleted = null;          // callback(nodeId)
+
+    this._bindDragEvents();
+  }
+
+  /**
+   * Add a new node of the given type at canvas coordinates (x, y).
+   * @param {string} type - Key from NODE_TYPES
+   * @param {number} x - Canvas x coordinate
+   * @param {number} y - Canvas y coordinate
+   * @returns {Object} The created node object
+   */
+  addNode(type, x, y) {
+    const typeDef = NODE_TYPES[type];
+    if (!typeDef) {
+      console.error(`Unknown node type: ${type}`);
+      return null;
+    }
+
+    const id = this.nextId++;
+    const node = {
+      id,
+      type,
+      x,
+      y,
+      data: { ...typeDef.defaults },
+      state: 'idle',
+      output: null,
+      el: null,
+    };
+
+    const el = createNodeElement(node);
+    if (!el) return null;
+
+    node.el = el;
+    this.canvasEl.appendChild(el);
+    this.nodes.set(id, node);
+
+    // Bind delete button
+    const deleteBtn = el.querySelector('.node-delete');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+      });
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.deleteNode(id);
+      });
+    }
+
+    // Bind header pointerdown for selection (excluding delete button)
+    const header = el.querySelector('.node-header');
+    if (header) {
+      header.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.node-delete')) return;
+        this.selectNode(id);
+      });
+    }
+
+    return node;
+  }
+
+  /**
+   * Delete a node by id.
+   * @param {number} id
+   */
+  deleteNode(id) {
+    const node = this.nodes.get(id);
+    if (!node) return;
+
+    // Remove DOM element
+    if (node.el && node.el.parentNode) {
+      node.el.parentNode.removeChild(node.el);
+    }
+
+    this.nodes.delete(id);
+
+    // Clear selection if this was the selected node
+    if (this.selectedNodeId === id) {
+      this.selectedNodeId = null;
+      if (this.onNodeSelected) this.onNodeSelected(null);
+    }
+
+    if (this.onNodeDeleted) this.onNodeDeleted(id);
+  }
+
+  /**
+   * Select a node by id.
+   * @param {number} id
+   */
+  selectNode(id) {
+    // Deselect previous
+    if (this.selectedNodeId !== null && this.selectedNodeId !== id) {
+      const prevNode = this.nodes.get(this.selectedNodeId);
+      if (prevNode && prevNode.el) {
+        prevNode.el.classList.remove('selected');
+      }
+    }
+
+    // Select new
+    const node = this.nodes.get(id);
+    if (!node) return;
+
+    node.el.classList.add('selected');
+    this.selectedNodeId = id;
+
+    if (this.onNodeSelected) this.onNodeSelected(node);
+  }
+
+  /**
+   * Deselect all nodes.
+   */
+  deselectAll() {
+    if (this.selectedNodeId !== null) {
+      const node = this.nodes.get(this.selectedNodeId);
+      if (node && node.el) {
+        node.el.classList.remove('selected');
+      }
+    }
+    this.selectedNodeId = null;
+    if (this.onNodeSelected) this.onNodeSelected(null);
+  }
+
+  /**
+   * Update a data field on a node.
+   * @param {number} id
+   * @param {string} key
+   * @param {*} value
+   */
+  updateNodeData(id, key, value) {
+    const node = this.nodes.get(id);
+    if (node) {
+      node.data[key] = value;
+    }
+  }
+
+  /**
+   * Get a node by id.
+   * @param {number} id
+   * @returns {Object|undefined}
+   */
+  getNode(id) {
+    return this.nodes.get(id);
+  }
+
+  /**
+   * Get all nodes as an array.
+   * @returns {Object[]}
+   */
+  getAllNodes() {
+    return Array.from(this.nodes.values());
+  }
+
+  /**
+   * Bind drag events for moving nodes on the canvas.
+   */
+  _bindDragEvents() {
+    // pointerdown on .node-header (but not .node-delete)
+    this.canvasEl.addEventListener('pointerdown', (e) => {
+      const header = e.target.closest('.node-header');
+      if (!header) return;
+      if (e.target.closest('.node-delete')) return;
+
+      const nodeEl = header.closest('.node');
+      if (!nodeEl) return;
+
+      const nodeId = parseInt(nodeEl.dataset.nodeId, 10);
+      const node = this.nodes.get(nodeId);
+      if (!node) return;
+
+      // Stop propagation to prevent canvas panning
+      e.stopPropagation();
+
+      this._dragState = {
+        nodeId,
+        startMouseX: e.clientX,
+        startMouseY: e.clientY,
+        startNodeX: node.x,
+        startNodeY: node.y,
+      };
+    });
+
+    // pointermove on window
+    window.addEventListener('pointermove', (e) => {
+      if (!this._dragState) return;
+
+      const { nodeId, startMouseX, startMouseY, startNodeX, startNodeY } = this._dragState;
+      const node = this.nodes.get(nodeId);
+      if (!node) {
+        this._dragState = null;
+        return;
+      }
+
+      const dx = (e.clientX - startMouseX) / this.canvas.scale;
+      const dy = (e.clientY - startMouseY) / this.canvas.scale;
+
+      node.x = startNodeX + dx;
+      node.y = startNodeY + dy;
+      node.el.style.left = `${node.x}px`;
+      node.el.style.top = `${node.y}px`;
+
+      if (this.onNodeMoved) this.onNodeMoved(nodeId);
+    });
+
+    // pointerup on window
+    window.addEventListener('pointerup', () => {
+      this._dragState = null;
+    });
+  }
+}
+
+// ===== Connection Manager =====
+// Manages SVG bezier connections between node ports.
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+class ConnectionManager {
+  constructor(svgEl, nodeManager) {
+    this.svg = svgEl;
+    this.nodeManager = nodeManager;
+    this.connections = [];    // [{ id, fromNode, fromPort, toNode, toPort, pathEl }]
+    this.nextId = 1;
+    this._drawingState = null;
+    this._tempPath = null;
+    this._bindEvents();
+  }
+
+  /**
+   * Get the position of a port dot in canvas coordinates.
+   * @param {number} nodeId
+   * @param {string} portId
+   * @param {string} portDirection - 'in' or 'out'
+   * @returns {{ x: number, y: number }|null}
+   */
+  _getPortPosition(nodeId, portId, portDirection) {
+    const selector = `.port-${portDirection}[data-node-id="${nodeId}"][data-port-id="${portId}"] .port-dot`;
+    const dot = this.nodeManager.canvasEl.querySelector(selector);
+    if (!dot) return null;
+
+    const dotRect = dot.getBoundingClientRect();
+    const canvasRect = this.nodeManager.canvasEl.getBoundingClientRect();
+
+    const x = (dotRect.left + dotRect.width / 2 - canvasRect.left - this.nodeManager.canvas.offsetX) / this.nodeManager.canvas.scale;
+    const y = (dotRect.top + dotRect.height / 2 - canvasRect.top - this.nodeManager.canvas.offsetY) / this.nodeManager.canvas.scale;
+
+    return { x, y };
+  }
+
+  /**
+   * Create a bezier path string between two points.
+   */
+  _createBezierPath(x1, y1, x2, y2) {
+    const dx = Math.abs(x2 - x1) * 0.5;
+    return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+  }
+
+  /**
+   * Add a connection between an output port and an input port.
+   * @param {number} fromNodeId
+   * @param {string} fromPortId
+   * @param {number} toNodeId
+   * @param {string} toPortId
+   * @returns {Object} The created connection
+   */
+  addConnection(fromNodeId, fromPortId, toNodeId, toPortId) {
+    // Remove any existing connection to this input (one connection per input)
+    const existing = this.connections.find(
+      (c) => c.toNode === toNodeId && c.toPort === toPortId
+    );
+    if (existing) {
+      this.removeConnection(existing.id);
+    }
+
+    // Create SVG path
+    const pathEl = document.createElementNS(SVG_NS, 'path');
+    pathEl.classList.add('connection-path');
+    const connId = this.nextId++;
+    pathEl.dataset.connId = connId;
+    this.svg.appendChild(pathEl);
+
+    const conn = {
+      id: connId,
+      fromNode: fromNodeId,
+      fromPort: fromPortId,
+      toNode: toNodeId,
+      toPort: toPortId,
+      pathEl,
+    };
+
+    this.connections.push(conn);
+    this._updateConnectionPath(conn);
+
+    return conn;
+  }
+
+  /**
+   * Remove a connection by id.
+   * @param {number} id
+   */
+  removeConnection(id) {
+    const idx = this.connections.findIndex((c) => c.id === id);
+    if (idx === -1) return;
+
+    const conn = this.connections[idx];
+    if (conn.pathEl && conn.pathEl.parentNode) {
+      conn.pathEl.parentNode.removeChild(conn.pathEl);
+    }
+
+    this.connections.splice(idx, 1);
+  }
+
+  /**
+   * Remove all connections involving a given node.
+   * @param {number} nodeId
+   */
+  removeConnectionsForNode(nodeId) {
+    const toRemove = this.connections.filter(
+      (c) => c.fromNode === nodeId || c.toNode === nodeId
+    );
+    for (const conn of toRemove) {
+      this.removeConnection(conn.id);
+    }
+  }
+
+  /**
+   * Get all connections where the given node is the target (input).
+   * @param {number} nodeId
+   * @returns {Object[]}
+   */
+  getInputConnections(nodeId) {
+    return this.connections.filter((c) => c.toNode === nodeId);
+  }
+
+  /**
+   * Update the SVG path for a single connection.
+   * @param {Object} conn
+   */
+  _updateConnectionPath(conn) {
+    const fromPos = this._getPortPosition(conn.fromNode, conn.fromPort, 'out');
+    const toPos = this._getPortPosition(conn.toNode, conn.toPort, 'in');
+    if (!fromPos || !toPos) return;
+
+    const d = this._createBezierPath(fromPos.x, fromPos.y, toPos.x, toPos.y);
+    conn.pathEl.setAttribute('d', d);
+  }
+
+  /**
+   * Update all connection paths (e.g. after a node moves or canvas transforms).
+   */
+  updateAllConnections() {
+    for (const conn of this.connections) {
+      this._updateConnectionPath(conn);
+    }
+  }
+
+  /**
+   * Bind interaction events for creating and removing connections.
+   */
+  _bindEvents() {
+    const canvasEl = this.nodeManager.canvasEl;
+
+    // --- Start drawing a connection from a port dot ---
+    canvasEl.addEventListener('pointerdown', (e) => {
+      const dot = e.target.closest('.port-dot');
+      if (!dot) return;
+
+      const port = dot.closest('.port');
+      if (!port) return;
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      const nodeId = parseInt(port.dataset.nodeId, 10);
+      const portId = port.dataset.portId;
+      const portType = port.dataset.portType;
+      const isOutput = port.classList.contains('port-out');
+      const direction = isOutput ? 'out' : 'in';
+
+      const pos = this._getPortPosition(nodeId, portId, direction);
+      if (!pos) return;
+
+      this._drawingState = {
+        fromNodeId: isOutput ? nodeId : null,
+        fromPortId: isOutput ? portId : null,
+        fromPortType: isOutput ? portType : null,
+        toNodeId: isOutput ? null : nodeId,
+        toPortId: isOutput ? null : portId,
+        toPortType: isOutput ? null : portType,
+        startX: pos.x,
+        startY: pos.y,
+        reverse: !isOutput, // true if started from an input port
+      };
+
+      // Create temp path
+      this._tempPath = document.createElementNS(SVG_NS, 'path');
+      this._tempPath.classList.add('connection-path', 'connection-temp');
+      this.svg.appendChild(this._tempPath);
+    });
+
+    // --- Draw temp connection while moving ---
+    window.addEventListener('pointermove', (e) => {
+      if (!this._drawingState || !this._tempPath) return;
+
+      const cursorPos = this.nodeManager.canvas.screenToCanvas(e.clientX, e.clientY);
+
+      let d;
+      if (this._drawingState.reverse) {
+        // Started from input, draw from cursor to start
+        d = this._createBezierPath(cursorPos.x, cursorPos.y, this._drawingState.startX, this._drawingState.startY);
+      } else {
+        // Started from output, draw from start to cursor
+        d = this._createBezierPath(this._drawingState.startX, this._drawingState.startY, cursorPos.x, cursorPos.y);
+      }
+      this._tempPath.setAttribute('d', d);
+    });
+
+    // --- Complete or cancel connection on pointerup ---
+    window.addEventListener('pointerup', (e) => {
+      if (!this._drawingState) return;
+
+      const state = this._drawingState;
+
+      // Check if cursor is over a valid port
+      const elUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
+      const dot = elUnderCursor ? elUnderCursor.closest('.port-dot') : null;
+      const port = dot ? dot.closest('.port') : null;
+
+      if (port) {
+        const targetNodeId = parseInt(port.dataset.nodeId, 10);
+        const targetPortId = port.dataset.portId;
+        const targetPortType = port.dataset.portType;
+        const targetIsOutput = port.classList.contains('port-out');
+
+        // Determine from/to based on draw direction
+        let fromNodeId, fromPortId, fromPortType, toNodeId, toPortId, toPortType;
+
+        if (state.reverse) {
+          // Started from input, target should be output
+          if (targetIsOutput) {
+            fromNodeId = targetNodeId;
+            fromPortId = targetPortId;
+            fromPortType = targetPortType;
+            toNodeId = state.toNodeId;
+            toPortId = state.toPortId;
+            toPortType = state.toPortType;
+          }
+        } else {
+          // Started from output, target should be input
+          if (!targetIsOutput) {
+            fromNodeId = state.fromNodeId;
+            fromPortId = state.fromPortId;
+            fromPortType = state.fromPortType;
+            toNodeId = targetNodeId;
+            toPortId = targetPortId;
+            toPortType = targetPortType;
+          }
+        }
+
+        // Validate connection
+        if (
+          fromNodeId != null &&
+          toNodeId != null &&
+          fromNodeId !== toNodeId &&
+          this._isCompatible(fromPortType, toPortType)
+        ) {
+          this.addConnection(fromNodeId, fromPortId, toNodeId, toPortId);
+        }
+      }
+
+      // Cleanup temp path and drawing state
+      if (this._tempPath && this._tempPath.parentNode) {
+        this._tempPath.parentNode.removeChild(this._tempPath);
+      }
+      this._tempPath = null;
+      this._drawingState = null;
+    });
+
+    // --- Right-click on connection to remove it ---
+    this.svg.addEventListener('contextmenu', (e) => {
+      const pathEl = e.target.closest('.connection-path');
+      if (!pathEl || pathEl.classList.contains('connection-temp')) return;
+
+      e.preventDefault();
+
+      const connId = parseInt(pathEl.dataset.connId, 10);
+      if (!isNaN(connId)) {
+        this.removeConnection(connId);
+      }
+    });
+  }
+
+  /**
+   * Check if an output port type is compatible with an input port type.
+   * @param {string} outputType
+   * @param {string} inputType
+   * @returns {boolean}
+   */
+  _isCompatible(outputType, inputType) {
+    const compatList = PORT_COMPAT[outputType];
+    if (!compatList) return false;
+    return compatList.includes(inputType);
+  }
+}
+
+// ===== Sidebar =====
+// Left sidebar with node palette (drag to add nodes) and dynamic settings panel.
+
+// Map short palette type names to full NODE_TYPES keys
+const PALETTE_TYPE_MAP = {
+  'upload': 'image-upload',
+  'image': 'image-generator',
+  'video': 'video-generator',
+  'preview': 'preview'
+};
+
+class Sidebar {
+  constructor(nodeManager) {
+    this.nodeManager = nodeManager;
+    this.paletteSection = document.querySelector('#sidebar > .sidebar-section:first-child');
+    this.settingsSection = document.getElementById('nodeSettings');
+    this.settingsContent = document.getElementById('nodeSettingsContent');
+    this.onFileUpload = null;  // callback(nodeId, file) — set by app.js
+
+    this._bindPaletteDrag();
+    this._bindBackButton();
+  }
+
+  _bindPaletteDrag() {
+    document.querySelectorAll('.palette-item').forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        const shortType = item.dataset.nodeType;
+        const fullType = PALETTE_TYPE_MAP[shortType] || shortType;
+        e.dataTransfer.setData('node-type', fullType);
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+    });
+  }
+
+  _bindBackButton() {
+    document.getElementById('settingsBackBtn').addEventListener('click', () => {
+      this.nodeManager.deselectAll();
+      this.showPalette();
+    });
+  }
+
+  showPalette() {
+    this.paletteSection.classList.remove('hidden');
+    this.settingsSection.classList.add('hidden');
+  }
+
+  showSettings(node) {
+    this.paletteSection.classList.add('hidden');
+    this.settingsSection.classList.remove('hidden');
+
+    const typeDef = NODE_TYPES[node.type];
+
+    // Build settings form HTML dynamically from typeDef.settings array
+    let html = '';
+    typeDef.settings.forEach(setting => {
+      const value = node.data[setting.key] || '';
+      html += `<div class="setting-group">`;
+      html += `<label class="setting-label">${setting.label}${setting.required ? ' <span class="required">*</span>' : ''}</label>`;
+
+      switch (setting.type) {
+        case 'textarea':
+          html += `<textarea class="setting-input" data-key="${setting.key}" placeholder="${setting.placeholder || ''}" rows="4">${value}</textarea>`;
+          break;
+        case 'text':
+        case 'url':
+          html += `<input type="${setting.type}" class="setting-input" data-key="${setting.key}" value="${value}" placeholder="${setting.placeholder || ''}" />`;
+          break;
+        case 'number':
+          html += `<input type="number" class="setting-input" data-key="${setting.key}" value="${value}" min="${setting.min || ''}" max="${setting.max || ''}" step="${setting.step || 1}" placeholder="${setting.placeholder || ''}" />`;
+          break;
+        case 'select':
+          html += `<select class="setting-input" data-key="${setting.key}">`;
+          setting.options.forEach(opt => {
+            html += `<option value="${opt.value}" ${value === opt.value ? 'selected' : ''}>${opt.label}</option>`;
+          });
+          html += `</select>`;
+          break;
+        case 'toggle':
+          html += `<label class="setting-toggle"><input type="checkbox" class="setting-input" data-key="${setting.key}" ${node.data[setting.key] ? 'checked' : ''} /><span class="toggle-slider-sm"></span></label>`;
+          break;
+        case 'file':
+          html += `<button class="upload-btn" data-node-id="${node.id}">Choose File</button>`;
+          if (node.data.imageData || node.data.imageUrl) {
+            const src = node.data.imageData || node.data.imageUrl;
+            html += `<div class="setting-preview"><img src="${src}" alt="preview" /></div>`;
+          }
+          break;
+      }
+      html += `</div>`;
+    });
+
+    this.settingsContent.innerHTML = html;
+
+    // Bind change events — on input/change, update node data
+    this.settingsContent.querySelectorAll('.setting-input').forEach(input => {
+      const ev = (input.tagName === 'SELECT') ? 'change' : 'input';
+      input.addEventListener(ev, (e) => {
+        const key = e.target.dataset.key;
+        let val = e.target.type === 'checkbox' ? e.target.checked :
+                  e.target.type === 'number' ? (e.target.value ? Number(e.target.value) : '') :
+                  e.target.value;
+        this.nodeManager.updateNodeData(node.id, key, val);
+      });
+    });
+
+    // File upload buttons
+    this.settingsContent.querySelectorAll('.upload-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fileInput = document.getElementById('globalFileInput');
+        fileInput.dataset.targetNodeId = node.id;
+        fileInput.click();
+      });
+    });
+  }
+}
+
+// ===== Topbar =====
+// Top bar with API key management and controls.
+
+class Topbar {
+  constructor() {
+    this.onRun = null;          // callback()
+    this.onResetView = null;    // callback()
+    this._loadKeys();
+    this._bindEvents();
+  }
+
+  _bindEvents() {
+    document.getElementById('runBtn').addEventListener('click', () => this.onRun?.());
+    document.getElementById('resetViewBtn').addEventListener('click', () => this.onResetView?.());
+
+    // Save keys to localStorage on change
+    document.getElementById('apiKeyInput').addEventListener('input', () => this._saveKeys());
+    document.getElementById('openrouterKeyInput').addEventListener('input', () => this._saveKeys());
+  }
+
+  getGeminiKey() {
+    return document.getElementById('apiKeyInput').value.trim();
+  }
+
+  getOpenRouterKey() {
+    return document.getElementById('openrouterKeyInput').value.trim();
+  }
+
+  _saveKeys() {
+    localStorage.setItem('seedance_gemini_key', this.getGeminiKey());
+    localStorage.setItem('seedance_openrouter_key', this.getOpenRouterKey());
+  }
+
+  _loadKeys() {
+    const gk = localStorage.getItem('seedance_gemini_key');
+    const ork = localStorage.getItem('seedance_openrouter_key');
+    if (gk) document.getElementById('apiKeyInput').value = gk;
+    if (ork) document.getElementById('openrouterKeyInput').value = ork;
+  }
+
+  setRunning(isRunning) {
+    const btn = document.getElementById('runBtn');
+    btn.disabled = isRunning;
+    btn.textContent = isRunning ? '\u23F3 Running...' : '\u25B6 Run';
+  }
+}
+
+// ===== API Functions =====
+
+async function generateImage({ geminiKey, prompt, model, aspectRatio, style, negative }) {
+  if (!geminiKey) throw new Error('Gemini API Key is required');
+  if (!prompt) throw new Error('Prompt is required for image generation');
+
+  let fullPrompt = prompt;
+  if (style) fullPrompt = `${style} style: ${fullPrompt}`;
+  if (negative) fullPrompt += `. Avoid: ${negative}`;
+
+  const modelId = model || 'imagen-4.0-generate-001';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:predict?key=${geminiKey}`;
+
+  const requestBody = {
+    instances: [{ prompt: fullPrompt }],
+    parameters: {
+      sampleCount: 1,
+      aspectRatio: aspectRatio || '1:1'
+    }
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(requestBody)
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || `Imagen API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  if (!data.predictions || data.predictions.length === 0) {
+    throw new Error('No image generated. The prompt may have been blocked by safety filters.');
+  }
+
+  const base64Image = data.predictions[0].bytesBase64Encoded;
+  const mimeType = data.predictions[0].mimeType || 'image/png';
+  return `data:${mimeType};base64,${base64Image}`;
+}
+
+async function submitVideoGeneration({ openRouterKey, prompt, duration, resolution, aspectRatio, size, seed, generateAudio, frameImages, inputReferences }) {
+  if (!openRouterKey) throw new Error('OpenRouter API Key is required');
+  if (!prompt) throw new Error('Prompt is required for video generation');
+
+  const body = { model: 'bytedance/seedance-2.0-fast', prompt };
+
+  if (duration) body.duration = parseInt(duration);
+  if (resolution) body.resolution = resolution;
+  if (aspectRatio) body.aspect_ratio = aspectRatio;
+  if (size) body.size = size;
+  if (seed !== '' && seed !== undefined && seed !== null) body.seed = parseInt(seed);
+  if (generateAudio) body.generate_audio = true;
+
+  if (frameImages && frameImages.length > 0) {
+    body.frame_images = frameImages.map(f => ({
+      type: 'image_url',
+      frame_type: f.frameType,
+      image_url: { url: f.url }
+    }));
+  }
+
+  if (inputReferences && inputReferences.length > 0) {
+    body.input_references = inputReferences.map(url => ({
+      type: 'image_url',
+      image_url: { url }
+    }));
+  }
+
+  const response = await fetch('https://openrouter.ai/api/v1/videos', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${openRouterKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error?.message || result.error || `HTTP ${response.status}`);
+  }
+
+  return result; // { id, polling_url, status }
+}
+
+async function pollVideoStatus(pollingUrl, openRouterKey) {
+  const fullUrl = pollingUrl.startsWith('http') ? pollingUrl : `https://openrouter.ai${pollingUrl}`;
+  const response = await fetch(fullUrl, {
+    headers: { 'Authorization': `Bearer ${openRouterKey}` }
+  });
+  return response.json();
+}
+
+// ===== Execution Engine =====
+
+class ExecutionEngine {
+  constructor(nodeManager, connectionManager, topbar) {
+    this.nodeManager = nodeManager;
+    this.connectionManager = connectionManager;
+    this.topbar = topbar;
+    this.onLog = null;  // callback(message, type) — type is '' | 'error' | 'success'
+  }
+
+  _log(msg, type = '') { this.onLog?.(msg, type); }
+
+  // Topological sort: returns nodes in execution order (sources first)
+  _topoSort() {
+    const nodes = this.nodeManager.getAllNodes();
+    const connections = this.connectionManager.connections;
+    const inDegree = {};
+    const adj = {};
+
+    nodes.forEach(n => { inDegree[n.id] = 0; adj[n.id] = []; });
+    connections.forEach(c => {
+      inDegree[c.toNode] = (inDegree[c.toNode] || 0) + 1;
+      if (!adj[c.fromNode]) adj[c.fromNode] = [];
+      adj[c.fromNode].push(c.toNode);
+    });
+
+    const queue = nodes.filter(n => inDegree[n.id] === 0).map(n => n.id);
+    const sorted = [];
+    while (queue.length > 0) {
+      const id = queue.shift();
+      sorted.push(id);
+      (adj[id] || []).forEach(neighbor => {
+        inDegree[neighbor]--;
+        if (inDegree[neighbor] === 0) queue.push(neighbor);
+      });
+    }
+
+    if (sorted.length !== nodes.length) throw new Error('Circular dependency detected in workflow');
+    return sorted.map(id => this.nodeManager.getNode(id));
+  }
+
+  // Get the output data flowing into a node's specific input port
+  _getInputData(nodeId, portId) {
+    const conn = this.connectionManager.connections.find(c => c.toNode === nodeId && c.toPort === portId);
+    if (!conn) return null;
+    return this.nodeManager.getNode(conn.fromNode)?.output || null;
+  }
+
+  // Get all input data for a multi-input port
+  _getAllInputData(nodeId, portId) {
+    return this.connectionManager.connections
+      .filter(c => c.toNode === nodeId && c.toPort === portId)
+      .map(c => this.nodeManager.getNode(c.fromNode)?.output)
+      .filter(Boolean);
+  }
+
+  async run() {
+    const openRouterKey = this.topbar.getOpenRouterKey();
+    const geminiKey = this.topbar.getGeminiKey();
+
+    let sortedNodes;
+    try { sortedNodes = this._topoSort(); } catch (e) { this._log(e.message, 'error'); return; }
+    if (sortedNodes.length === 0) { this._log('No nodes to execute', 'error'); return; }
+
+    this.topbar.setRunning(true);
+    this._log('Starting workflow execution...');
+    sortedNodes.forEach(n => { n.output = null; setNodeState(n.id, 'idle'); });
+
+    for (const node of sortedNodes) {
+      try {
+        setNodeState(node.id, 'running');
+        this._log(`Running: ${NODE_TYPES[node.type].label} (${node.id})`);
+
+        switch (node.type) {
+          case 'image-generator': {
+            const imageUrl = await generateImage({
+              geminiKey,
+              prompt: node.data.prompt,
+              model: node.data.model,
+              aspectRatio: node.data.aspectRatio,
+              style: node.data.style,
+              negative: node.data.negative
+            });
+            node.output = imageUrl;
+            updateNodeThumbnail(node.id, imageUrl, 'image');
+            this._log('Image generated successfully', 'success');
+            break;
+          }
+          case 'image-upload': {
+            const url = node.data.imageData || node.data.imageUrl;
+            if (!url) throw new Error('No image provided');
+            node.output = url;
+            updateNodeThumbnail(node.id, url, 'image');
+            this._log('Image loaded', 'success');
+            break;
+          }
+          case 'video-generator': {
+            const firstFrame = this._getInputData(node.id, 'first_frame');
+            const lastFrame = this._getInputData(node.id, 'last_frame');
+            const refImgs = this._getAllInputData(node.id, 'ref_images');
+            const frameImages = [];
+            if (firstFrame) frameImages.push({ frameType: 'first_frame', url: firstFrame });
+            if (lastFrame) frameImages.push({ frameType: 'last_frame', url: lastFrame });
+
+            const result = await submitVideoGeneration({
+              openRouterKey,
+              prompt: node.data.prompt,
+              duration: node.data.duration,
+              resolution: node.data.resolution,
+              aspectRatio: node.data.aspectRatio,
+              size: node.data.size,
+              seed: node.data.seed,
+              generateAudio: node.data.generateAudio,
+              frameImages: frameImages.length > 0 ? frameImages : undefined,
+              inputReferences: refImgs.length > 0 ? refImgs : undefined
+            });
+
+            this._log(`Video job submitted: ${result.id}. Polling...`);
+            const pollingUrl = result.polling_url || `/api/v1/videos/${result.id}`;
+
+            // Poll loop
+            while (true) {
+              await new Promise(r => setTimeout(r, 5000));
+              const status = await pollVideoStatus(pollingUrl, openRouterKey);
+              this._log(`Video status: ${status.status}`);
+              if (status.status === 'completed') {
+                const videoUrl = status.unsigned_urls?.[0];
+                if (status.usage) this._log(`Cost: $${status.usage.cost}`, 'success');
+                if (videoUrl) {
+                  node.output = videoUrl;
+                  updateNodeThumbnail(node.id, videoUrl, 'video');
+                }
+                this._log('Video generated!', 'success');
+                break;
+              }
+              if (status.status === 'failed') {
+                throw new Error(status.error || 'Video generation failed');
+              }
+            }
+            break;
+          }
+          case 'preview': {
+            const media = this._getInputData(node.id, 'media');
+            if (media) {
+              node.output = media;
+              const isVideo = typeof media === 'string' && (media.includes('.mp4') || media.includes('video'));
+              updateNodeThumbnail(node.id, media, isVideo ? 'video' : 'image');
+              this._log('Preview updated', 'success');
+            }
+            break;
+          }
+        }
+        setNodeState(node.id, 'complete');
+      } catch (err) {
+        setNodeState(node.id, 'error');
+        this._log(`Error in ${node.id}: ${err.message}`, 'error');
+      }
+    }
+
+    this.topbar.setRunning(false);
+    this._log('Workflow execution finished.', 'success');
+  }
+}
+
+// ===== App =====
+
+class App {
+  constructor() {
+    // 1. Initialize Canvas
+    this.canvas = new Canvas(
+      document.getElementById('canvasWrapper'),
+      document.getElementById('canvas'),
+      document.getElementById('connections')
+    );
+
+    // 2. Initialize NodeManager
+    this.nodeManager = new NodeManager(
+      document.getElementById('canvas'),
+      this.canvas
+    );
+
+    // 3. Initialize ConnectionManager
+    this.connectionManager = new ConnectionManager(
+      document.getElementById('connections'),
+      this.nodeManager
+    );
+
+    // 4. Initialize Sidebar
+    this.sidebar = new Sidebar(this.nodeManager);
+
+    // 5. Initialize Topbar
+    this.topbar = new Topbar();
+
+    // 6. Initialize ExecutionEngine
+    this.execution = new ExecutionEngine(
+      this.nodeManager,
+      this.connectionManager,
+      this.topbar
+    );
+
+    this._wireEvents();
+    this._setupDropZone();
+    this._setupFileInput();
+    this._setupLog();
+    this._setupKeyboard();
+  }
+
+  _wireEvents() {
+    // Node selected -> show settings in sidebar
+    this.nodeManager.onNodeSelected = (node) => {
+      if (node) this.sidebar.showSettings(node);
+      else this.sidebar.showPalette();
+    };
+
+    // Node moved -> update connections
+    this.nodeManager.onNodeMoved = () => {
+      this.connectionManager.updateAllConnections();
+    };
+
+    // Node deleted -> remove connections
+    this.nodeManager.onNodeDeleted = (id) => {
+      this.connectionManager.removeConnectionsForNode(id);
+    };
+
+    // Click on empty canvas -> deselect all
+    document.getElementById('canvasWrapper').addEventListener('pointerdown', (e) => {
+      if (e.target === document.getElementById('canvasWrapper') ||
+          e.target === document.getElementById('canvas') ||
+          e.target === document.getElementById('connections')) {
+        this.nodeManager.deselectAll();
+      }
+    });
+
+    // Run workflow
+    this.topbar.onRun = () => this.execution.run();
+
+    // Reset view
+    this.topbar.onResetView = () => this.canvas.resetView();
+  }
+
+  _setupDropZone() {
+    const wrapper = document.getElementById('canvasWrapper');
+    wrapper.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    });
+    wrapper.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const type = e.dataTransfer.getData('node-type');
+      if (!type) return;
+      const pos = this.canvas.screenToCanvas(e.clientX, e.clientY);
+      const node = this.nodeManager.addNode(type, pos.x, pos.y);
+      if (node) this.nodeManager.selectNode(node.id);
+    });
+  }
+
+  _setupFileInput() {
+    const fileInput = document.getElementById('globalFileInput');
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const nodeId = parseInt(fileInput.dataset.targetNodeId, 10);
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        this.nodeManager.updateNodeData(nodeId, 'imageData', ev.target.result);
+        const node = this.nodeManager.getNode(nodeId);
+        if (node) {
+          // Refresh settings panel if this node is selected
+          if (this.nodeManager.selectedNodeId === nodeId) {
+            this.sidebar.showSettings(node);
+          }
+          // Update node thumbnail
+          updateNodeThumbnail(nodeId, ev.target.result, 'image');
+        }
+      };
+      reader.readAsDataURL(file);
+      fileInput.value = '';
+    });
+  }
+
+  _setupLog() {
+    const logContent = document.querySelector('#logPanel .log-content');
+    this.execution.onLog = (msg, type) => {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const now = new Date().toLocaleTimeString();
+      entry.innerHTML = `<span class="log-time">[${now}]</span> ${msg}`;
+      logContent.appendChild(entry);
+      logContent.scrollTop = logContent.scrollHeight;
+    };
+
+    // Log panel toggle
+    const logToggle = document.querySelector('#logPanel .log-toggle');
+    if (logToggle) {
+      logToggle.addEventListener('click', () => {
+        document.getElementById('logPanel').classList.toggle('collapsed');
+        const arrow = logToggle.querySelector('.toggle-arrow');
+        if (arrow) arrow.textContent = document.getElementById('logPanel').classList.contains('collapsed') ? '\u25B2' : '\u25BC';
+      });
+    }
+  }
+
+  _setupKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      // Don't intercept when typing in inputs
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+      // Delete/Backspace -> delete selected node
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const selectedId = this.nodeManager.selectedNodeId;
+        if (selectedId !== null) {
+          this.nodeManager.deleteNode(selectedId);
+          e.preventDefault();
+        }
+      }
+
+      // Escape -> deselect
+      if (e.key === 'Escape') {
+        this.nodeManager.deselectAll();
+      }
+
+      // Ctrl+0 -> reset view
+      if (e.key === '0' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.canvas.resetView();
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.app = new App();
+});
+
+})();
+  </script>
 </body>
 </html>
