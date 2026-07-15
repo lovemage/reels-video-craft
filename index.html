@@ -611,6 +611,95 @@ select.setting-input {
   flex: 1;
 }
 
+/* ===== Providers settings popover ===== */
+.topbar-settings-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.settings-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 330px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  z-index: 200;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.settings-popover .sp-section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.settings-popover .sp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 9px;
+}
+
+.settings-popover .sp-field:last-child {
+  margin-bottom: 0;
+}
+
+.settings-popover .sp-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.settings-popover .sp-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.settings-popover input[type="password"],
+.settings-popover input[type="text"] {
+  width: 100%;
+  padding: 6px 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+}
+
+.settings-popover input:focus {
+  border-color: var(--accent);
+}
+
+.sp-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.sp-toggle input {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
 /* ===== Log Panel ===== */
 #logPanel {
   position: fixed;
@@ -734,17 +823,54 @@ select.setting-input {
       <span>Seedance Studio</span>
     </div>
 
-    <div class="topbar-key-group">
-      <label for="apiKeyInput">API Key</label>
-      <input type="password" id="apiKeyInput" placeholder="sk-or-..." />
-    </div>
-
-    <div class="topbar-key-group">
-      <label for="openrouterKeyInput">OpenRouter</label>
-      <input type="password" id="openrouterKeyInput" placeholder="sk-or-..." />
-    </div>
-
     <div class="topbar-spacer"></div>
+
+    <div class="topbar-settings-wrap">
+      <button class="topbar-btn topbar-btn-secondary" id="settingsBtn" title="API providers & keys">&#9881; Providers</button>
+      <div class="settings-popover hidden" id="settingsPopover">
+
+        <div class="sp-section">
+          <div class="sp-section-title">Image Generation &middot; Gemini</div>
+          <div class="sp-field">
+            <label class="sp-label" for="apiKeyInput">Gemini API Key</label>
+            <input type="password" id="apiKeyInput" placeholder="AIza..." />
+          </div>
+        </div>
+
+        <div class="sp-section">
+          <div class="sp-section-title">
+            <span>Video &middot; OpenRouter</span>
+            <label class="sp-toggle"><input type="checkbox" id="openrouterEnabled" checked /> <span>Enabled</span></label>
+          </div>
+          <div class="sp-field">
+            <label class="sp-label" for="openrouterKeyInput">OpenRouter API Key</label>
+            <input type="password" id="openrouterKeyInput" placeholder="sk-or-..." />
+          </div>
+        </div>
+
+        <div class="sp-section">
+          <div class="sp-section-title">Video &middot; Cloudflare Workers AI</div>
+          <div class="sp-field">
+            <label class="sp-label" for="cfTokenInput">API Token</label>
+            <input type="password" id="cfTokenInput" placeholder="Cloudflare API token" />
+          </div>
+          <div class="sp-field">
+            <label class="sp-label" for="cfAccountInput">Account ID</label>
+            <input type="text" id="cfAccountInput" placeholder="your-account-id" />
+          </div>
+          <div class="sp-field">
+            <label class="sp-label" for="cfModelInput">Default Model</label>
+            <input type="text" id="cfModelInput" placeholder="seedance-2.0-mini" />
+          </div>
+          <div class="sp-field">
+            <label class="sp-label" for="cfEndpointInput">Endpoint override (optional)</label>
+            <input type="text" id="cfEndpointInput" placeholder="https://api.cloudflare.com/.../ai/run/{model}" />
+            <span class="sp-hint">Leave blank to auto-build from Account ID + Model.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
 
     <button class="topbar-btn topbar-btn-secondary" id="resetViewBtn" title="Reset canvas view">Reset View</button>
     <button class="topbar-btn topbar-btn-primary" id="runBtn">Run</button>
@@ -888,45 +1014,52 @@ const NODE_TYPES = {
     ],
     outputs: [{ id: 'video', type: 'video', label: 'Video' }],
     defaults: {
+      provider: 'cloudflare',
+      model: '',
       prompt: '',
       duration: 5,
       resolution: '720p',
-      aspectRatio: '',
-      size: '',
+      aspectRatio: '16:9',
       seed: '',
-      generateAudio: false
+      cameraFixed: false,
+      generateAudio: false,
+      watermark: false
     },
     settings: [
+      {
+        key: 'provider', type: 'select', label: 'Provider',
+        options: [
+          { value: 'cloudflare', label: 'Cloudflare Workers AI' },
+          { value: 'openrouter', label: 'OpenRouter' }
+        ]
+      },
+      { key: 'model', type: 'text', label: 'Model', placeholder: 'CF: seedance-2.0-mini / OR: bytedance/seedance-2.0-fast' },
       { key: 'prompt', type: 'textarea', label: 'Prompt', required: true, placeholder: 'Describe the video motion...' },
-      { key: 'duration', type: 'number', label: 'Duration (s)', min: 1, max: 30, step: 1 },
+      { key: 'duration', type: 'number', label: 'Duration (s)', min: 4, max: 12, step: 1 },
       {
         key: 'resolution', type: 'select', label: 'Resolution',
         options: [
-          { value: '', label: 'Auto' },
-          { value: '480p', label: '480p ($0.0538/s)' },
-          { value: '720p', label: '720p ($0.121/s)' },
-          { value: '1080p', label: '1080p ($0.2722/s)' },
-          { value: '1K', label: '1K' },
-          { value: '2K', label: '2K' },
-          { value: '4K', label: '4K' }
+          { value: '480p', label: '480p' },
+          { value: '720p', label: '720p' },
+          { value: '1080p', label: '1080p (OpenRouter only)' }
         ]
       },
       {
         key: 'aspectRatio', type: 'select', label: 'Aspect Ratio',
         options: [
-          { value: '', label: 'Auto' },
           { value: '16:9', label: '16:9' },
-          { value: '9:16', label: '9:16' },
-          { value: '1:1', label: '1:1' },
           { value: '4:3', label: '4:3' },
+          { value: '1:1', label: '1:1' },
           { value: '3:4', label: '3:4' },
+          { value: '9:16', label: '9:16' },
           { value: '21:9', label: '21:9' },
           { value: '9:21', label: '9:21' }
         ]
       },
-      { key: 'size', type: 'text', label: 'Size', placeholder: 'e.g. 1280x720' },
       { key: 'seed', type: 'number', label: 'Seed', placeholder: 'Random if empty' },
-      { key: 'generateAudio', type: 'toggle', label: 'Generate Audio' }
+      { key: 'cameraFixed', type: 'toggle', label: 'Camera Fixed' },
+      { key: 'generateAudio', type: 'toggle', label: 'Generate Audio' },
+      { key: 'watermark', type: 'toggle', label: 'Watermark' }
     ]
   },
 
@@ -1864,9 +1997,28 @@ class Topbar {
     document.getElementById('runBtn').addEventListener('click', () => this.onRun?.());
     document.getElementById('resetViewBtn').addEventListener('click', () => this.onResetView?.());
 
-    // Save keys to localStorage on change
-    document.getElementById('apiKeyInput').addEventListener('input', () => this._saveKeys());
-    document.getElementById('openrouterKeyInput').addEventListener('input', () => this._saveKeys());
+    // Settings popover toggle + outside-click close
+    const btn = document.getElementById('settingsBtn');
+    const pop = document.getElementById('settingsPopover');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pop.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!pop.classList.contains('hidden') && !pop.contains(e.target) && e.target !== btn) {
+        pop.classList.add('hidden');
+      }
+    });
+
+    // Save all credentials to localStorage on change
+    this._fieldIds.forEach(id => {
+      document.getElementById(id).addEventListener('input', () => this._saveKeys());
+    });
+    document.getElementById('openrouterEnabled').addEventListener('change', () => this._saveKeys());
+  }
+
+  get _fieldIds() {
+    return ['apiKeyInput', 'openrouterKeyInput', 'cfTokenInput', 'cfAccountInput', 'cfModelInput', 'cfEndpointInput'];
   }
 
   getGeminiKey() {
@@ -1877,16 +2029,38 @@ class Topbar {
     return document.getElementById('openrouterKeyInput').value.trim();
   }
 
+  isOpenRouterEnabled() {
+    return document.getElementById('openrouterEnabled').checked;
+  }
+
+  getCloudflareConfig() {
+    const token = document.getElementById('cfTokenInput').value.trim();
+    const accountId = document.getElementById('cfAccountInput').value.trim();
+    const model = document.getElementById('cfModelInput').value.trim() || 'seedance-2.0-mini';
+    const endpointOverride = document.getElementById('cfEndpointInput').value.trim();
+    return { token, accountId, model, endpointOverride };
+  }
+
   _saveKeys() {
     localStorage.setItem('seedance_gemini_key', this.getGeminiKey());
     localStorage.setItem('seedance_openrouter_key', this.getOpenRouterKey());
+    localStorage.setItem('seedance_openrouter_enabled', this.isOpenRouterEnabled() ? '1' : '0');
+    localStorage.setItem('seedance_cf_token', document.getElementById('cfTokenInput').value.trim());
+    localStorage.setItem('seedance_cf_account', document.getElementById('cfAccountInput').value.trim());
+    localStorage.setItem('seedance_cf_model', document.getElementById('cfModelInput').value.trim());
+    localStorage.setItem('seedance_cf_endpoint', document.getElementById('cfEndpointInput').value.trim());
   }
 
   _loadKeys() {
-    const gk = localStorage.getItem('seedance_gemini_key');
-    const ork = localStorage.getItem('seedance_openrouter_key');
-    if (gk) document.getElementById('apiKeyInput').value = gk;
-    if (ork) document.getElementById('openrouterKeyInput').value = ork;
+    const set = (id, key) => { const v = localStorage.getItem(key); if (v) document.getElementById(id).value = v; };
+    set('apiKeyInput', 'seedance_gemini_key');
+    set('openrouterKeyInput', 'seedance_openrouter_key');
+    set('cfTokenInput', 'seedance_cf_token');
+    set('cfAccountInput', 'seedance_cf_account');
+    set('cfModelInput', 'seedance_cf_model');
+    set('cfEndpointInput', 'seedance_cf_endpoint');
+    const orEnabled = localStorage.getItem('seedance_openrouter_enabled');
+    document.getElementById('openrouterEnabled').checked = orEnabled !== '0';
   }
 
   setRunning(isRunning) {
@@ -1938,18 +2112,19 @@ async function generateImage({ geminiKey, prompt, model, aspectRatio, style, neg
   return `data:${mimeType};base64,${base64Image}`;
 }
 
-async function submitVideoGeneration({ openRouterKey, prompt, duration, resolution, aspectRatio, size, seed, generateAudio, frameImages, inputReferences }) {
+async function submitVideoGeneration({ openRouterKey, model, prompt, duration, resolution, aspectRatio, seed, cameraFixed, generateAudio, watermark, frameImages, inputReferences }) {
   if (!openRouterKey) throw new Error('OpenRouter API Key is required');
   if (!prompt) throw new Error('Prompt is required for video generation');
 
-  const body = { model: 'bytedance/seedance-2.0-fast', prompt };
+  const body = { model: model || 'bytedance/seedance-2.0-fast', prompt };
 
   if (duration) body.duration = parseInt(duration);
   if (resolution) body.resolution = resolution;
   if (aspectRatio) body.aspect_ratio = aspectRatio;
-  if (size) body.size = size;
   if (seed !== '' && seed !== undefined && seed !== null) body.seed = parseInt(seed);
+  if (cameraFixed) body.camera_fixed = true;
   if (generateAudio) body.generate_audio = true;
+  if (watermark) body.watermark = true;
 
   if (frameImages && frameImages.length > 0) {
     body.frame_images = frameImages.map(f => ({
@@ -1989,6 +2164,58 @@ async function pollVideoStatus(pollingUrl, openRouterKey) {
     headers: { 'Authorization': `Bearer ${openRouterKey}` }
   });
   return response.json();
+}
+
+// Cloudflare Workers AI — seedance 2.0 mini (synchronous, returns a video URL).
+// Request/response shape follows cd-wroker.md.
+async function generateCloudflareVideo({ token, accountId, model, endpointOverride, prompt, duration, resolution, aspectRatio, seed, cameraFixed, generateAudio, watermark, firstFrame, lastFrame, refImages }) {
+  if (!token) throw new Error('Cloudflare API Token is required');
+  if (!prompt) throw new Error('Prompt is required for video generation');
+
+  const usedModel = model || 'seedance-2.0-mini';
+  let endpoint = endpointOverride;
+  if (endpoint) {
+    endpoint = endpoint.replace('{model}', usedModel);
+  } else {
+    if (!accountId) throw new Error('Cloudflare Account ID is required (or set an Endpoint override)');
+    endpoint = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${usedModel}`;
+  }
+
+  // Required by the seedance-2.0-mini schema: prompt, duration, resolution, aspect_ratio, fps, camera_fixed, watermark
+  const body = {
+    prompt,
+    duration: duration ? parseInt(duration) : 5,
+    resolution: resolution || '720p',
+    aspect_ratio: aspectRatio || '16:9',
+    fps: 24,
+    camera_fixed: !!cameraFixed,
+    watermark: !!watermark
+  };
+  if (generateAudio) body.generate_audio = true;
+  if (seed !== '' && seed !== undefined && seed !== null) body.seed = parseInt(seed);
+  if (firstFrame) body.image = firstFrame;
+  if (lastFrame && firstFrame) body.last_frame_image = lastFrame;
+  if (refImages && refImages.length > 0) body.reference_images = refImages.slice(0, 4);
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const msg = result.errors?.[0]?.message || result.error?.message || result.error || `HTTP ${response.status}`;
+    throw new Error(msg);
+  }
+
+  // Accept either the documented { video } shape or Cloudflare's { result: {...} } envelope.
+  const video = result.video || result.result?.video || result.result?.output?.video || result.result?.url;
+  if (!video) throw new Error('Cloudflare response did not include a video URL');
+  return video;
 }
 
 // ===== Execution Engine =====
@@ -2091,19 +2318,53 @@ class ExecutionEngine {
             const firstFrame = this._getInputData(node.id, 'first_frame');
             const lastFrame = this._getInputData(node.id, 'last_frame');
             const refImgs = this._getAllInputData(node.id, 'ref_images');
+            const provider = node.data.provider || 'cloudflare';
+
+            if (provider === 'cloudflare') {
+              const cf = this.topbar.getCloudflareConfig();
+              this._log(`Submitting to Cloudflare Workers AI (${cf.model})...`);
+              const videoUrl = await generateCloudflareVideo({
+                token: cf.token,
+                accountId: cf.accountId,
+                model: node.data.model || cf.model,
+                endpointOverride: cf.endpointOverride,
+                prompt: node.data.prompt,
+                duration: node.data.duration,
+                resolution: node.data.resolution,
+                aspectRatio: node.data.aspectRatio,
+                seed: node.data.seed,
+                cameraFixed: node.data.cameraFixed,
+                generateAudio: node.data.generateAudio,
+                watermark: node.data.watermark,
+                firstFrame,
+                lastFrame,
+                refImages: refImgs.length > 0 ? refImgs : undefined
+              });
+              node.output = videoUrl;
+              updateNodeThumbnail(node.id, videoUrl, 'video');
+              this._log('Video generated!', 'success');
+              break;
+            }
+
+            // OpenRouter (async submit + poll)
+            if (!this.topbar.isOpenRouterEnabled()) {
+              throw new Error('OpenRouter is disabled in Provider settings');
+            }
             const frameImages = [];
             if (firstFrame) frameImages.push({ frameType: 'first_frame', url: firstFrame });
             if (lastFrame) frameImages.push({ frameType: 'last_frame', url: lastFrame });
 
             const result = await submitVideoGeneration({
               openRouterKey,
+              model: node.data.model,
               prompt: node.data.prompt,
               duration: node.data.duration,
               resolution: node.data.resolution,
               aspectRatio: node.data.aspectRatio,
-              size: node.data.size,
               seed: node.data.seed,
+              cameraFixed: node.data.cameraFixed,
               generateAudio: node.data.generateAudio,
+              watermark: node.data.watermark,
               frameImages: frameImages.length > 0 ? frameImages : undefined,
               inputReferences: refImgs.length > 0 ? refImgs : undefined
             });
