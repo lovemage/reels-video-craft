@@ -1,0 +1,14 @@
+STYLE: clean soft anime illustration, bright cheerful travel mood, gentle shading, polished linework (same vibe as a modern anime key visual).
+
+FORMAT: a single 16:9 WIDE landscape image, arranged as a 2x2 grid of four equal LANDSCAPE cells (thin clean gutters). Each of the four cells is one travel destination scene.
+
+THE SAME young Asian woman traveler appears in all four cells: chin-length tidy grey-brown SHORT hair (airy, fluffy), delicate features, big friendly eyes, always wearing a backpack. She walks facing to the RIGHT. Keep her the SAME person in every cell.
+
+Each cell has, on its RIGHT side, a giant vertical BOARDING-PASS card: white ticket face with a colored top bar, a barcode, ticket fields in ENGLISH (NAME / FLT / GATE / SEAT), the brand text "aw-esim.com" clearly printed in the top bar, and one big destination WATERMARK word. ALL text ENGLISH only, no Chinese. Spell exactly: "aw-esim.com", "TOKYO", "SEOUL", "BANGKOK", "VIETNAM". On the LEFT side of each cell is the character with that city's real-landmark background, each outfit fusing local traditional weaving with modern design, each with a different backpack color:
+
+- TOP-LEFT = TOKYO: Tokyo Tower + Skytree + cherry blossoms; navy modern kimono-style jacket (Nishijin brocade + indigo + sashiko), white shirt, black pleated skirt, BLACK backpack, black loafers. Boarding-pass top bar LIGHT BLUE, watermark "TOKYO".
+- TOP-RIGHT = SEOUL: N Seoul Tower + Han river; modern hanbok-jeogori streetwear with Korean brocade, white cap, polka-dot skirt over jeans, RED backpack, red shoes, holding a camera. Top bar BLUE, watermark "SEOUL".
+- BOTTOM-LEFT = BANGKOK: Wat Arun + longtail boats; modern dress in Thai silk mudmee ikat + gold brocade, straw hat, BEIGE woven backpack, sandals, holding an ice pop. Top bar PINK, watermark "BANGKOK".
+- BOTTOM-RIGHT = VIETNAM: Hoi An old town + lanterns; modern ao-dai-inspired linen set with Vietnamese tho-cam brocade, conical hat, RATTAN backpack, holding a folding fan. Top bar GREEN, watermark "VIETNAM".
+
+Full-body, elegant, consistent character across all four cells. This is a 16:9 visual-draft storyboard for a travel-eSIM ad.

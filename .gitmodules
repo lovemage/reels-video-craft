@@ -1,0 +1,3 @@
+[submodule "shared/story-to-handdrawn-video"]
+	path = shared/story-to-handdrawn-video
+	url = https://github.com/gnipbao/story-to-handdrawn-video.git

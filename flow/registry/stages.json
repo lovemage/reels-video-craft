@@ -1,0 +1,237 @@
+{
+  "version": 1,
+  "description": "標準製作階段。所有製作方式共用同一組階段 id，差別只在每個階段是 required / optional / skip，以及各自的 note。",
+  "phases": [
+    { "id": "plan", "name": { "zh-TW": "規劃", "en": "Plan" } },
+    { "id": "prep", "name": { "zh-TW": "口播前處理", "en": "Speech Prep" } },
+    { "id": "design", "name": { "zh-TW": "視覺設計", "en": "Visual Design" } },
+    { "id": "build", "name": { "zh-TW": "素材與組裝", "en": "Build" } },
+    { "id": "verify", "name": { "zh-TW": "驗證", "en": "Verify" } },
+    { "id": "deliver", "name": { "zh-TW": "交付", "en": "Deliver" } }
+  ],
+  "stages": [
+    {
+      "id": "intake",
+      "phase": "plan",
+      "name": { "zh-TW": "需求確認", "en": "Intake" },
+      "summary": {
+        "zh-TW": "逐題確認輸入素材、觀看情境／比例、製作方式、配音、字幕、BGM 與片長，產出 brief.json。",
+        "en": "Confirm input material, viewing context/aspect, method, voice, captions, BGM and target length; write brief.json."
+      },
+      "gate": "human",
+      "gateNote": {
+        "zh-TW": "使用者必須對每一題給出明確答案。「你決定」「都可以」視為未確認：可提出具體建議，但仍須使用者表態。未全部確認前不得生成素材或呼叫付費 API。",
+        "en": "Every question needs an explicit answer. Vague replies count as unconfirmed. No asset generation or paid API calls before all answers land."
+      },
+      "outputs": ["brief.json"],
+      "command": "video-flow intake"
+    },
+    {
+      "id": "source-prep",
+      "phase": "prep",
+      "name": { "zh-TW": "素材歸位", "en": "Source Prep" },
+      "summary": {
+        "zh-TW": "把使用者提供的口播影片／音檔／逐字稿複製進專案標準路徑，轉成穩定格式，原始檔永久保留。",
+        "en": "Copy user-supplied footage/audio/script into the project's standard paths, transcode to stable formats, keep originals forever."
+      },
+      "gate": "none",
+      "outputs": ["public/voiceover-raw.*", "SCRIPT.zh-TW.md"],
+      "rules": {
+        "zh-TW": [
+          "原始檔一律命名 voiceover-raw.*，永不覆寫。",
+          "影片來源同時保留 voiceover-raw.mp4（供懸浮頭像使用）與抽出的 voiceover-raw.wav。"
+        ]
+      }
+    },
+    {
+      "id": "speech-edit",
+      "phase": "prep",
+      "name": { "zh-TW": "口播剪輯（auto-editor first pass）", "en": "Speech Edit" },
+      "summary": {
+        "zh-TW": "用 auto-editor 移除靜音段、冗長停頓與多餘空白，產出 voiceover-edited.*。這是整支影片時間軸的唯一基準。",
+        "en": "Run auto-editor to strip silence and dead air, producing voiceover-edited.* — the single source of truth for the timeline."
+      },
+      "gate": "human",
+      "gateNote": {
+        "zh-TW": "先跑 --preview 讓使用者確認擬移除的段落沒有誤切，再正式 render。若口語停頓被切太緊，調大 --margin 重跑。",
+        "en": "Run --preview first for human confirmation before rendering. Increase --margin if pauses get clipped too tight."
+      },
+      "inputs": ["public/voiceover-raw.*"],
+      "outputs": ["public/voiceover-edited.*"],
+      "tools": ["auto-editor"],
+      "command": "auto-editor public/voiceover-raw.wav --preview",
+      "rules": {
+        "zh-TW": [
+          "不得跳過此步驟直接量秒、做字幕或排分鏡。",
+          "不得覆寫 raw 檔。",
+          "後續所有時間計算（字幕時間碼、場景切點、durationInFrames、交付的獨立旁白）一律以 edited 檔為準。"
+        ]
+      }
+    },
+    {
+      "id": "transcribe",
+      "phase": "prep",
+      "name": { "zh-TW": "語音轉錄", "en": "Transcribe" },
+      "summary": {
+        "zh-TW": "把 voiceover-edited.* 轉錄成帶時間碼的字幕初稿。",
+        "en": "Transcribe voiceover-edited.* into a timestamped caption draft."
+      },
+      "gate": "none",
+      "inputs": ["public/voiceover-edited.*"],
+      "outputs": ["public/captions/captions-draft.json"],
+      "tools": ["whisper"]
+    },
+    {
+      "id": "caption-correct",
+      "phase": "prep",
+      "name": { "zh-TW": "字幕校對", "en": "Caption Correction" },
+      "summary": {
+        "zh-TW": "回聽原音校對初稿：移除重複、口語贅詞與多餘空白，修正聽錯字與不自然斷句。",
+        "en": "Proofread the draft against the audio: drop repeats, filler words and stray whitespace; fix misheard words and awkward breaks."
+      },
+      "gate": "human",
+      "inputs": ["public/captions/captions-draft.json"],
+      "outputs": ["public/captions/captions.json"],
+      "rules": {
+        "zh-TW": [
+          "只清理字幕呈現，不得改寫原意或杜撰內容。",
+          "字幕刪字不等於刪語音；不得因為校對而剪掉音訊。",
+          "格式須符合 @remotion/captions：text、startMs、endMs、timestampMs、confidence。"
+        ]
+      }
+    },
+    {
+      "id": "timeline-lock",
+      "phase": "prep",
+      "name": { "zh-TW": "時間軸鎖定", "en": "Timeline Lock" },
+      "summary": {
+        "zh-TW": "以校正後字幕與 edited 旁白實際秒數算出總幀數與場景切點，寫回 brief.json。之後視覺一律配合這個時間軸。",
+        "en": "Derive total frames and scene cuts from the corrected captions and the edited voiceover; write them back to brief.json. Visuals follow this timeline, never the reverse."
+      },
+      "gate": "none",
+      "inputs": ["public/captions/captions.json", "public/voiceover-edited.*"],
+      "outputs": ["brief.json#timeline"],
+      "rules": {
+        "zh-TW": [
+          "換頁與場景切點對齊語音停頓，不平均分配。",
+          "不得先固定畫面時間再拉伸語音。"
+        ]
+      }
+    },
+    {
+      "id": "storyboard",
+      "phase": "design",
+      "name": { "zh-TW": "分鏡規劃", "en": "Storyboard" },
+      "summary": {
+        "zh-TW": "把鎖定後的時間軸拆成鏡頭／幕／beat，寫明每一段要讓觀眾理解什麼、畫面主構圖與揭示順序。",
+        "en": "Break the locked timeline into shots/scenes/beats: what each segment must convey, the main composition, and the reveal order."
+      },
+      "gate": "human",
+      "inputs": ["brief.json#timeline", "public/captions/captions.json"],
+      "outputs": ["STORYBOARD.zh-TW.md"]
+    },
+    {
+      "id": "visual-design",
+      "phase": "design",
+      "name": { "zh-TW": "視覺風格定案", "en": "Visual Design Lock" },
+      "summary": {
+        "zh-TW": "定案色彩、字型、構圖語法、角色與轉場語彙。部分方式的風格由技能自身鎖定，不得自行改寫。",
+        "en": "Lock palette, typography, composition grammar, characters and transition vocabulary. Some methods have their style locked by the upstream skill."
+      },
+      "gate": "human",
+      "outputs": ["DESIGN.zh-TW.md"]
+    },
+    {
+      "id": "asset-gen",
+      "phase": "build",
+      "name": { "zh-TW": "素材生成", "en": "Asset Generation" },
+      "summary": {
+        "zh-TW": "呼叫生圖／生影片 API 產出畫面素材，先出單鏡測試取得確認，再批量生成。",
+        "en": "Call image/video generation APIs. Ship one test shot for approval before batch generation."
+      },
+      "gate": "human",
+      "gateNote": {
+        "zh-TW": "涉及付費 API。必須先產單一鏡頭或 contact sheet 供使用者確認，再批量生成。",
+        "en": "Paid APIs. Always get approval on a single shot or contact sheet before batching."
+      },
+      "outputs": ["public/assets/**"]
+    },
+    {
+      "id": "script-align",
+      "phase": "build",
+      "name": { "zh-TW": "旁白時間對齊", "en": "Narration Alignment" },
+      "summary": {
+        "zh-TW": "外部工具估的分鏡秒數只是草稿。用每段敘述文字去 fuzzy match captions.json 的真實時間戳，換算出正確的起訖影格。",
+        "en": "Durations estimated by upstream tools are drafts only. Fuzzy-match each segment's text against captions.json to recover true frame ranges."
+      },
+      "gate": "none",
+      "inputs": ["public/captions/captions.json", "STORYBOARD.zh-TW.md"],
+      "outputs": ["src/data/segments.ts"],
+      "rules": {
+        "zh-TW": [
+          "字元級 fuzzy match，並用單調游標往前搜尋，避免同一個詞在文本別處被誤配。",
+          "漏掉這一步，畫面切換節奏會跟語音完全對不上。"
+        ]
+      }
+    },
+    {
+      "id": "assemble",
+      "phase": "build",
+      "name": { "zh-TW": "組裝", "en": "Assemble" },
+      "summary": {
+        "zh-TW": "在 Remotion 把畫面軌、旁白、字幕、吉祥物／頭像與 BGM 疊成最終時間軸。",
+        "en": "Layer the visual track, narration, captions, mascot/avatar and BGM into the final timeline in Remotion."
+      },
+      "gate": "none",
+      "outputs": ["src/Composition.tsx"],
+      "rules": {
+        "zh-TW": [
+          "所有動畫用 useCurrentFrame()／interpolate()／spring()，不使用 CSS transition／animation。",
+          "旁白是主聲道；BGM 約 8–15%，首秒淡入、末兩秒淡出。",
+          "掛載順序：畫面軌 → 懸浮頭像 → 吉祥物 → 字幕（吉祥物在字幕之前才不會被蓋住）。"
+        ]
+      }
+    },
+    {
+      "id": "render",
+      "phase": "build",
+      "name": { "zh-TW": "渲染", "en": "Render" },
+      "summary": {
+        "zh-TW": "先 lint 再渲染，輸出檔名標示版本、聲線與是否含 BGM，不覆蓋既有成品。",
+        "en": "Lint, then render. Filenames encode version, voice and BGM state; never overwrite an existing deliverable."
+      },
+      "gate": "none",
+      "outputs": ["out/*.mp4"]
+    },
+    {
+      "id": "qa",
+      "phase": "verify",
+      "name": { "zh-TW": "品質檢查", "en": "QA" },
+      "summary": {
+        "zh-TW": "自動檢查尺寸、fps、codec、片長、音訊峰值；人工檢查字幕同步、安全區與資訊正確性。",
+        "en": "Automated checks on dimensions, fps, codec, duration and peak level; human checks on caption sync, safe areas and factual accuracy."
+      },
+      "gate": "human",
+      "outputs": ["qa-report.json"],
+      "command": "video-flow qa <project> <output.mp4>",
+      "rules": {
+        "zh-TW": [
+          "音訊峰值必須低於 0 dB。",
+          "影片長度須覆蓋完整旁白，不截尾音。",
+          "每個交付比例都要獨立做安全區與可讀性 QA，通過一個比例不代表其他比例自動通過。"
+        ]
+      }
+    },
+    {
+      "id": "deliver",
+      "phase": "deliver",
+      "name": { "zh-TW": "交付", "en": "Deliver" },
+      "summary": {
+        "zh-TW": "提供完整影片、獨立旁白與腳本的絕對路徑，附上素材來源與授權註記。",
+        "en": "Hand over absolute paths to the final video, standalone narration and script, plus asset source and licence notes."
+      },
+      "gate": "none",
+      "outputs": ["out/*.mp4", "CREDITS.md"]
+    }
+  ]
+}

@@ -1,1 +1,45 @@
+# === 機密 ===
 .env
+.env.*
+!.env.example
+flow.config.json
+
+# === 依賴與建置產物 ===
+node_modules/
+dist/
+.cache/
+*.tsbuildinfo
+
+# === Python ===
+__pycache__/
+*.pyc
+.venv/
+
+# === 影片輸出（一律不進版控，體積過大）===
+out/
+outputs/
+**/out/
+**/outputs/
+
+# === 使用者實際專案與素材（公開倉庫只收 examples/）===
+# 想公開某個專案時，複製到 examples/ 並移除個人素材與授權受限音樂
+production/
+media/
+shared-assets/
+WORKSPACE.zh-TW.md
+
+# === 大型二進位素材（即使在 examples/ 也不收）===
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.wav
+*.m4a
+*.mp3
+*.aac
+*.flac
+
+# === 暫存 ===
+.DS_Store
+*.log
+.whisper/

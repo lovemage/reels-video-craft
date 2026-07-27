@@ -1,0 +1,1059 @@
+{
+  "version": 1,
+  "description": "八套影片製作方式。stages 欄位決定每套流程實際要跑哪些階段——這是「哪些要寫分鏡、哪些要先對齊口播、哪些要先剪片」的機器可讀答案。沒有預設方式，每個新專案都必須由使用者本次確認。",
+  "inputTypes": [
+    {
+      "id": "talking-head-video",
+      "name": {
+        "zh-TW": "口播影片（有人臉）",
+        "en": "Talking-head video"
+      },
+      "note": {
+        "zh-TW": "可同時當旁白來源與懸浮頭像素材。",
+        "en": "Doubles as narration source and floating-avatar footage."
+      }
+    },
+    {
+      "id": "voiceover-audio",
+      "name": {
+        "zh-TW": "純旁白音檔",
+        "en": "Voiceover audio"
+      }
+    },
+    {
+      "id": "script-text",
+      "name": {
+        "zh-TW": "逐字稿／文字",
+        "en": "Script text"
+      },
+      "note": {
+        "zh-TW": "還沒有語音，需先決定配音方式並產生旁白。",
+        "en": "No audio yet; pick a voice route and generate narration first."
+      }
+    },
+    {
+      "id": "topic-brief",
+      "name": {
+        "zh-TW": "只有主題／需求",
+        "en": "Topic brief only"
+      },
+      "note": {
+        "zh-TW": "需先寫逐字稿。",
+        "en": "Script must be written first."
+      }
+    },
+    {
+      "id": "existing-clip",
+      "name": {
+        "zh-TW": "既有短鏡頭（要修改的素材）",
+        "en": "Existing clip to modify"
+      }
+    },
+    {
+      "id": "image-sequence",
+      "name": {
+        "zh-TW": "順序圖片",
+        "en": "Ordered images"
+      }
+    }
+  ],
+  "aspects": [
+    {
+      "id": "9:16",
+      "size": "1080x1920",
+      "name": {
+        "zh-TW": "直式 · 手機",
+        "en": "Portrait · mobile"
+      },
+      "platforms": [
+        "Reels",
+        "TikTok",
+        "Shorts"
+      ]
+    },
+    {
+      "id": "16:9",
+      "size": "1920x1080",
+      "name": {
+        "zh-TW": "橫式 · 電腦／電視",
+        "en": "Landscape · desktop/TV"
+      },
+      "platforms": [
+        "YouTube",
+        "簡報",
+        "網站"
+      ]
+    },
+    {
+      "id": "1:1",
+      "size": "1080x1080",
+      "name": {
+        "zh-TW": "方形 · 動態消息",
+        "en": "Square · feed"
+      },
+      "platforms": [
+        "IG 貼文",
+        "FB"
+      ]
+    },
+    {
+      "id": "4:5",
+      "size": "1080x1350",
+      "name": {
+        "zh-TW": "直式 · 動態消息",
+        "en": "Vertical feed"
+      },
+      "platforms": [
+        "IG 貼文"
+      ]
+    },
+    {
+      "id": "3:4",
+      "size": "1080x1440",
+      "name": {
+        "zh-TW": "直式 · 上游原生",
+        "en": "Portrait · upstream native"
+      },
+      "platforms": []
+    },
+    {
+      "id": "source",
+      "size": "follow-source",
+      "name": {
+        "zh-TW": "沿用來源素材比例",
+        "en": "Inherit source"
+      },
+      "platforms": []
+    },
+    {
+      "id": "custom",
+      "size": "custom",
+      "name": {
+        "zh-TW": "自訂尺寸",
+        "en": "Custom size"
+      },
+      "platforms": [],
+      "requiresDimensions": true,
+      "note": {
+        "zh-TW": "選這個會追問寬高，寫入 brief.json 的 width/height。H.264 需要偶數尺寸。",
+        "en": "Prompts for width/height, stored in brief.json. H.264 requires even dimensions."
+      }
+    }
+  ],
+  "methods": [
+    {
+      "id": "remotion-native",
+      "code": "M1",
+      "name": {
+        "zh-TW": "純 Remotion",
+        "en": "Remotion Native"
+      },
+      "tagline": {
+        "zh-TW": "程式繪圖、SVG／CSS 動畫、字幕與轉場，全部由程式碼產生。",
+        "en": "Everything drawn in code: SVG/CSS animation, captions and transitions."
+      },
+      "bestFor": {
+        "zh-TW": [
+          "資訊圖表",
+          "文字卡",
+          "需要精準時間控制的影片"
+        ]
+      },
+      "strengths": {
+        "zh-TW": [
+          "時間與版面最可控",
+          "零素材生成成本",
+          "改一個字重渲即可"
+        ]
+      },
+      "cautions": {
+        "zh-TW": [
+          "視覺完全靠程式設計，畫面豐富度取決於實作",
+          "不適合需要寫實質感的題材"
+        ]
+      },
+      "visualTrack": "code",
+      "inputs": {
+        "accepts": [
+          "talking-head-video",
+          "voiceover-audio",
+          "script-text",
+          "topic-brief"
+        ]
+      },
+      "aspects": {
+        "supported": [
+          "9:16",
+          "16:9",
+          "1:1",
+          "4:5",
+          "custom"
+        ],
+        "default": "9:16"
+      },
+      "requires": {
+        "tools": [
+          "node>=22",
+          "ffmpeg"
+        ],
+        "env": [],
+        "skills": [],
+        "submodules": []
+      },
+      "cost": {
+        "model": "none",
+        "note": {
+          "zh-TW": "除 TTS 外無 API 成本。"
+        }
+      },
+      "stages": {
+        "intake": "required",
+        "source-prep": "required",
+        "speech-edit": "required",
+        "transcribe": "required",
+        "caption-correct": "required",
+        "timeline-lock": "required",
+        "storyboard": "optional",
+        "visual-design": "optional",
+        "asset-gen": "skip",
+        "script-align": "skip",
+        "assemble": "required",
+        "render": "required",
+        "qa": "required",
+        "deliver": "required"
+      },
+      "stageOverrides": {
+        "storyboard": {
+          "note": {
+            "zh-TW": "畫面直接在 Composition 排；超過三個場景才建議先寫分鏡。"
+          }
+        },
+        "script-align": {
+          "note": {
+            "zh-TW": "不需要——場景區間直接讀 captions.json 算，沒有外部工具估的秒數要校正。"
+          }
+        },
+        "asset-gen": {
+          "note": {
+            "zh-TW": "不需要——畫面由程式繪製。"
+          }
+        }
+      }
+    },
+    {
+      "id": "gbro-collage",
+      "code": "M2",
+      "name": {
+        "zh-TW": "GBRO 拼貼 + Omni + Remotion",
+        "en": "GBRO Collage + Omni + Remotion"
+      },
+      "tagline": {
+        "zh-TW": "先做半調紙拼貼靜幀，用 Gemini Omni 生成 3–5 秒短動畫，再由 Remotion 對齊旁白組裝。",
+        "en": "Halftone paper-collage stills → 3–5s Gemini Omni animations → Remotion assembly against the narration."
+      },
+      "bestFor": {
+        "zh-TW": [
+          "科普",
+          "觀點內容",
+          "Reels",
+          "紙拼貼敘事"
+        ]
+      },
+      "strengths": {
+        "zh-TW": [
+          "兼顧生圖質感與精準剪輯",
+          "視覺辨識度高"
+        ]
+      },
+      "cautions": {
+        "zh-TW": [
+          "必須完成視覺隱喻、靜幀、動畫三階段審批，不可跳關",
+          "生圖與生影片皆為付費 API"
+        ]
+      },
+      "visualTrack": "generated",
+      "inputs": {
+        "accepts": [
+          "talking-head-video",
+          "voiceover-audio",
+          "script-text",
+          "topic-brief"
+        ]
+      },
+      "aspects": {
+        "supported": [
+          "9:16",
+          "1:1",
+          "4:5",
+          "16:9"
+        ],
+        "default": "9:16",
+        "note": {
+          "zh-TW": "改比例必須重新生成靜幀，不可裁切既有素材。"
+        }
+      },
+      "requires": {
+        "tools": [
+          "node>=22",
+          "ffmpeg"
+        ],
+        "env": [
+          "GEMINI_API_KEY"
+        ],
+        "skills": [
+          "gbro-collage-broll"
+        ],
+        "submodules": []
+      },
+      "cost": {
+        "model": "per-asset",
+        "note": {
+          "zh-TW": "每段一張靜幀 + 一支短動畫。"
+        }
+      },
+      "stages": {
+        "intake": "required",
+        "source-prep": "required",
+        "speech-edit": "required",
+        "transcribe": "required",
+        "caption-correct": "required",
+        "timeline-lock": "required",
+        "storyboard": "required",
+        "visual-design": "required",
+        "asset-gen": "required",
+        "script-align": "required",
+        "assemble": "required",
+        "render": "required",
+        "qa": "required",
+        "deliver": "required"
+      },
+      "guide": "docs/methods/gbro-collage.md",
+      "stageOverrides": {
+        "storyboard": {
+          "note": {
+            "zh-TW": "每段約 5 秒的視覺隱喻，先提出等待確認才進下一階段。"
+          }
+        },
+        "visual-design": {
+          "note": {
+            "zh-TW": "三階段審批第 2 關：生成彩色半調紙拼貼靜幀 + contact sheet，再次等待確認。"
+          }
+        },
+        "asset-gen": {
+          "note": {
+            "zh-TW": "三階段審批第 3 關：Gemini Omni 生成短動畫，逐段 QA 後才放進 Remotion。每段保存 frames/first-frame.png、frames/last-frame.png、omni-prompt.txt、omni/run-v01/final-5s.mp4、contact-sheet.jpg。"
+          }
+        },
+        "script-align": {
+          "note": {
+            "zh-TW": "短動畫長度是固定的 3–5 秒，必須對齊旁白段落；不足整段長度時在尾幀停留，不要慢速拉伸。"
+          }
+        }
+      },
+      "qaArtifacts": {
+        "stills": "required",
+        "count": 4,
+        "note": {
+          "zh-TW": "逐段檢查 Omni 動畫接回靜幀的銜接，以及尾幀停留是否自然。"
+        }
+      }
+    },
+    {
+      "id": "omni-direct-edit",
+      "code": "M3",
+      "name": {
+        "zh-TW": "Gemini Omni 直接影片編輯",
+        "en": "Gemini Omni Direct Edit"
+      },
+      "tagline": {
+        "zh-TW": "上傳既有短鏡頭，用自然語言修改物件、背景、燈光或風格。",
+        "en": "Upload an existing clip and modify objects, background, lighting or style with plain language."
+      },
+      "bestFor": {
+        "zh-TW": [
+          "修改既有短鏡頭",
+          "替換背景或物件",
+          "統一多支素材的風格"
+        ]
+      },
+      "strengths": {
+        "zh-TW": [
+          "可用自然語言反覆修改",
+          "不需重新生成整段"
+        ]
+      },
+      "cautions": {
+        "zh-TW": [
+          "視為 Preview 能力，不等同可獨立編輯圖層的剪輯器",
+          "不適合一次處理完整長片，長片應先拆鏡頭",
+          "這是鏡頭級工具，通常作為其他方式的子步驟而非獨立交付流程"
+        ]
+      },
+      "visualTrack": "footage",
+      "inputs": {
+        "accepts": [
+          "existing-clip"
+        ]
+      },
+      "aspects": {
+        "supported": [
+          "source"
+        ],
+        "default": "source",
+        "note": {
+          "zh-TW": "沿用來源鏡頭比例。"
+        }
+      },
+      "requires": {
+        "tools": [
+          "ffmpeg"
+        ],
+        "env": [
+          "GEMINI_API_KEY"
+        ],
+        "skills": [],
+        "submodules": []
+      },
+      "cost": {
+        "model": "per-clip"
+      },
+      "stages": {
+        "intake": "required",
+        "source-prep": "required",
+        "speech-edit": "skip",
+        "transcribe": "skip",
+        "caption-correct": "skip",
+        "timeline-lock": "skip",
+        "storyboard": "skip",
+        "visual-design": "required",
+        "asset-gen": "required",
+        "script-align": "skip",
+        "assemble": "optional",
+        "render": "required",
+        "qa": "required",
+        "deliver": "required"
+      },
+      "stageOverrides": {
+        "speech-edit": {
+          "note": {
+            "zh-TW": "不需要——輸入是既有畫面素材，不是口播。若這支鏡頭最終要進一支有旁白的片，語音流程屬於那支片的方式，不屬於這裡。"
+          }
+        },
+        "timeline-lock": {
+          "note": {
+            "zh-TW": "不需要——沒有旁白時間軸要鎖。"
+          }
+        },
+        "storyboard": {
+          "note": {
+            "zh-TW": "不需要——鏡頭已經存在，只做修改指令。"
+          }
+        },
+        "assemble": {
+          "note": {
+            "zh-TW": "單鏡輸出時不需要；若要接進完整影片，由主流程的 Remotion 組裝。"
+          }
+        }
+      }
+    },
+    {
+      "id": "handdrawn-diary",
+      "code": "M4",
+      "name": {
+        "zh-TW": "手繪日記漫畫 + 真人懸浮頭像",
+        "en": "Hand-drawn Diary + Floating Avatar"
+      },
+      "tagline": {
+        "zh-TW": "把故事轉成「文字 → 黑白畫稿 → 彩色插畫」的手繪動畫，右上角放真人懸浮頭像。",
+        "en": "Turn a story into text → B/W sketch → coloured illustration hand-drawn animation, with a live-action floating avatar."
+      },
+      "bestFor": {
+        "zh-TW": [
+          "接案心法",
+          "個人觀點",
+          "教學類 talking-head 短影音"
+        ]
+      },
+      "strengths": {
+        "zh-TW": [
+          "美術風格由技能既有設計語言直接鎖定，不必自行設計",
+          "真人只需露臉入鏡當懸浮頭像"
+        ]
+      },
+      "cautions": {
+        "zh-TW": [
+          "步驟最多：需故事文本整理、時間點比對校正、額外裝字幕與吉祥物元件",
+          "禁止自行編寫美術風格提示詞，也不得沿用其他專案的視覺系統",
+          "禁止直接沿用技能內建的 text → bw_full → color 揭示動畫與手寫字幕（會跟本專案字幕／頭像疊在一起）"
+        ]
+      },
+      "visualTrack": "generated",
+      "inputs": {
+        "accepts": [
+          "talking-head-video",
+          "voiceover-audio",
+          "script-text",
+          "image-sequence"
+        ],
+        "preferred": [
+          "talking-head-video"
+        ],
+        "note": {
+          "zh-TW": "懸浮頭像需要真人入鏡影片；沒有的話這套方式只剩手繪畫面軌。"
+        }
+      },
+      "aspects": {
+        "supported": [
+          "9:16",
+          "3:4"
+        ],
+        "default": "9:16",
+        "note": {
+          "zh-TW": "Seedance 預設原生 9:16（1080×1920），插畫區加高並保留安全白邊，不以裁切或補黑邊處理。"
+        }
+      },
+      "requires": {
+        "tools": [
+          "node>=22",
+          "python3",
+          "ffmpeg"
+        ],
+        "env": [],
+        "skills": [
+          "story-to-handdrawn-video"
+        ],
+        "submodules": [
+          "shared/story-to-handdrawn-video"
+        ]
+      },
+      "cost": {
+        "model": "per-image",
+        "note": {
+          "zh-TW": "每幕一張圖，由 Codex Image2 生成。plan 階段免費不生圖。"
+        }
+      },
+      "stages": {
+        "intake": "required",
+        "source-prep": "required",
+        "speech-edit": "required",
+        "transcribe": "required",
+        "caption-correct": "required",
+        "timeline-lock": "required",
+        "storyboard": "required",
+        "visual-design": "locked",
+        "asset-gen": "required",
+        "script-align": "required",
+        "assemble": "required",
+        "render": "required",
+        "qa": "required",
+        "deliver": "required"
+      },
+      "guide": "docs/methods/handdrawn-diary.md",
+      "stageOverrides": {
+        "storyboard": {
+          "note": {
+            "zh-TW": "由技能腳本以 --mode plan 自動產出（免費、不生圖）。先把校正後逐字稿改寫成故事文本，長句要先斷句——技能依標點自動分句，句子太長會在中間硬切甚至切斷詞。"
+          }
+        },
+        "visual-design": {
+          "note": {
+            "zh-TW": "鎖定，不可改：純白底、氈頭筆黑線、局部蠟筆色、大量留白，由技能自己的 DESIGN.md 決定。"
+          }
+        },
+        "asset-gen": {
+          "note": {
+            "zh-TW": "prompt 在 prompts/generated/codex/<batch>/，交給 Codex Image2 生成；助手只需準備 prompt。全部生成後跑 --mode import（本地衍生黑白稿並對齊畫布）與 --mode render。"
+          }
+        },
+        "script-align": {
+          "note": {
+            "zh-TW": "本方式的關鍵步驟。技能估的 duration_sec 只是粗略節奏，必須用每段 narration 文字比對 captions.json 真實時間戳（字元級 fuzzy match + 單調游標），算出真正的 from/to frame。漏掉這步，畫面切換會跟語音完全對不上。"
+          }
+        },
+        "assemble": {
+          "note": {
+            "zh-TW": "用 <Img> 逐段讀 storyboard/stills/NN.png 包進 Sequence，加慢速 Ken Burns。真人影片當右上角圓形頭像靜音播放，旁白走獨立 <Audio>。字幕與吉祥物用 shared/subtitle-mascot-kit。"
+          }
+        }
+      },
+      "qaArtifacts": {
+        "stills": "optional",
+        "count": 4
+      }
+    },
+    {
+      "id": "handdrawn-lineart",
+      "code": "M5",
+      "name": {
+        "zh-TW": "手繪故事線稿上色",
+        "en": "Hand-drawn Line-art Reveal"
+      },
+      "tagline": {
+        "zh-TW": "每幕一張彩色母圖，本地提取對齊線稿，做「線稿由左至右顯現 → 同方向低飽和彩色填入」。",
+        "en": "One colour master per scene; line art extracted locally, revealed left-to-right then filled with desaturated colour in the same direction."
+      },
+      "bestFor": {
+        "zh-TW": [
+          "7–9 幕、35–45 秒的暖故事型 B-roll"
+        ]
+      },
+      "strengths": {
+        "zh-TW": [
+          "揭示動畫本身就是敘事節奏",
+          "單張母圖即可衍生線稿與彩色兩層"
+        ]
+      },
+      "cautions": {
+        "zh-TW": [
+          "只產出畫面軌，字幕與音訊仍交由 Remotion",
+          "上游預設 720×960，交付 9:16 必須先在分鏡與安全區調整到 1080×1920 再生成素材",
+          "禁止使用其內建故事字幕覆蓋本專案字幕設計"
+        ]
+      },
+      "visualTrack": "generated",
+      "inputs": {
+        "accepts": [
+          "talking-head-video",
+          "voiceover-audio",
+          "script-text",
+          "topic-brief"
+        ]
+      },
+      "aspects": {
+        "supported": [
+          "9:16",
+          "3:4"
+        ],
+        "default": "9:16",
+        "note": {
+          "zh-TW": "上游原生 3:4（720×960）；交付 9:16 須先調整分鏡與畫布安全區。"
+        }
+      },
+      "requires": {
+        "tools": [
+          "node>=22",
+          "ffmpeg",
+          "hyperframes"
+        ],
+        "env": [],
+        "skills": [
+          "handdraw-story-video"
+        ],
+        "submodules": []
+      },
+      "cost": {
+        "model": "per-image",
+        "note": {
+          "zh-TW": "每幕一張彩色母圖。"
+        }
+      },
+      "stages": {
+        "intake": "required",
+        "source-prep": "required",
+        "speech-edit": "required",
+        "transcribe": "required",
+        "caption-correct": "required",
+        "timeline-lock": "required",
+        "storyboard": "required",
+        "visual-design": "locked",
+        "asset-gen": "required",
+        "script-align": "required",
+        "assemble": "required",
+        "render": "required",
+        "qa": "required",
+        "deliver": "required"
+      },
+      "stageOverrides": {
+        "storyboard": {
+          "note": {
+            "zh-TW": "7–9 幕，每幕對應一張彩色母圖。幕數與旁白段落要先對齊再生圖。"
+          }
+        },
+        "visual-design": {
+          "note": {
+            "zh-TW": "揭示語法鎖定：線稿由左至右顯現，彩色同方向低飽和填入。"
+          }
+        },
+        "script-align": {
+          "note": {
+            "zh-TW": "HyperFrames 段落秒數必須以 captions.json 校正，不用技能預設節奏。"
+          }
+        }
+      },
+      "qaArtifacts": {
+        "stills": "optional",
+        "count": 4
+      }
+    },
+    {
+      "id": "seedance-broll",
+      "code": "M6",
+      "name": {
+        "zh-TW": "Seedance 2.0 Fast（OpenRouter）+ Remotion",
+        "en": "Seedance 2.0 Fast + Remotion"
+      },
+      "tagline": {
+        "zh-TW": "用 OpenRouter 非同步影片端點生成 B-roll，支援文字轉影片、首尾幀控制與多模態參考素材。",
+        "en": "Generate B-roll via OpenRouter's async video endpoint: text-to-video, first/last-frame control and multimodal references."
+      },
+      "bestFor": {
+        "zh-TW": [
+          "需要快速生成寫實或動態 B-roll",
+          "首尾幀接續的連續鏡頭",
+          "有參考素材要延伸"
+        ]
+      },
+      "strengths": {
+        "zh-TW": [
+          "每秒成本相對可控",
+          "可非同步批量生成",
+          "首尾幀接續可做連貫長鏡"
+        ]
+      },
+      "cautions": {
+        "zh-TW": [
+          "必須從 .env 讀 OPENROUTER_API_KEY，不得透過 chat completions 偽造影片呼叫",
+          "提交後要輪詢 job 完成狀態再下載 MP4",
+          "價格、支援長度與解析度以當下 models API 回傳為準"
+        ]
+      },
+      "visualTrack": "generated",
+      "inputs": {
+        "accepts": [
+          "talking-head-video",
+          "voiceover-audio",
+          "script-text",
+          "topic-brief",
+          "image-sequence"
+        ]
+      },
+      "aspects": {
+        "supported": [
+          "9:16",
+          "16:9",
+          "1:1"
+        ],
+        "default": "9:16",
+        "note": {
+          "zh-TW": "預設 9:16、720p、4–8 秒短鏡頭。"
+        }
+      },
+      "requires": {
+        "tools": [
+          "node>=22",
+          "python3",
+          "ffmpeg"
+        ],
+        "env": [
+          "OPENROUTER_API_KEY"
+        ],
+        "skills": [],
+        "submodules": []
+      },
+      "cost": {
+        "model": "per-second",
+        "note": {
+          "zh-TW": "OpenRouter 公開起價約 US$0.0538／秒（僅供估算，以當下 models API 為準）。"
+        },
+        "api": {
+          "endpoint": "POST /api/v1/videos",
+          "model": "bytedance/seedance-2.0-fast"
+        }
+      },
+      "stages": {
+        "intake": "required",
+        "source-prep": "required",
+        "speech-edit": "required",
+        "transcribe": "required",
+        "caption-correct": "required",
+        "timeline-lock": "required",
+        "storyboard": "required",
+        "visual-design": "required",
+        "asset-gen": "required",
+        "script-align": "required",
+        "assemble": "required",
+        "render": "required",
+        "qa": "required",
+        "deliver": "required"
+      },
+      "guide": "docs/methods/seedance-broll.md",
+      "stageOverrides": {
+        "storyboard": {
+          "note": {
+            "zh-TW": "每個 Cut 要有 prompt 與 continuity contract；連續鏡頭用上一段尾幀當下一段首幀。"
+          }
+        },
+        "visual-design": {
+          "note": {
+            "zh-TW": "先做 Character Sheet 鎖定人物與場景，否則跨鏡頭不連貫。"
+          }
+        },
+        "asset-gen": {
+          "note": {
+            "zh-TW": "先出單鏡頭測試並取得使用者確認，再批量生成。每段產出 contact sheet 供人工檢查，並留下可比對的 render record。"
+          }
+        }
+      },
+      "qaArtifacts": {
+        "stills": "required",
+        "count": 6,
+        "note": {
+          "zh-TW": "檢查跨鏡頭連續性：人物外觀、光線方向、場景陳設是否一致。"
+        }
+      }
+    },
+    {
+      "id": "hyperframes",
+      "code": "M7",
+      "name": {
+        "zh-TW": "HyperFrames + Remotion",
+        "en": "HyperFrames + Remotion"
+      },
+      "tagline": {
+        "zh-TW": "用 HTML／CSS／GSAP（可含 Lottie、Three.js）建立可逐格定位的動態網頁畫面，由 Headless Chrome 與 FFmpeg 輸出畫面軌。",
+        "en": "Build frame-addressable web visuals in HTML/CSS/GSAP (plus Lottie, Three.js), rendered to a video track via headless Chrome and FFmpeg."
+      },
+      "bestFor": {
+        "zh-TW": [
+          "動態排版",
+          "網頁感轉場",
+          "資訊視覺化",
+          "精準線條／遮罩揭示"
+        ]
+      },
+      "strengths": {
+        "zh-TW": [
+          "瀏覽器即所見即所得，預覽快",
+          "可用整個網頁生態的動畫工具"
+        ]
+      },
+      "cautions": {
+        "zh-TW": [
+          "需 Node.js 22+、FFmpeg 與 HyperFrames",
+          "只負責視覺片段；旁白、字幕、吉祥物、頭像、配樂與最終時間軸仍由 Remotion 組裝",
+          "不可因為 handdraw-story-video 用 HyperFrames 就自動選這套"
+        ]
+      },
+      "visualTrack": "code",
+      "inputs": {
+        "accepts": [
+          "talking-head-video",
+          "voiceover-audio",
+          "script-text",
+          "topic-brief"
+        ]
+      },
+      "aspects": {
+        "supported": [
+          "9:16",
+          "16:9",
+          "1:1",
+          "4:5",
+          "custom"
+        ],
+        "default": "9:16"
+      },
+      "requires": {
+        "tools": [
+          "node>=22",
+          "ffmpeg",
+          "hyperframes"
+        ],
+        "env": [],
+        "skills": [
+          "hyperframes"
+        ],
+        "submodules": []
+      },
+      "cost": {
+        "model": "none"
+      },
+      "stages": {
+        "intake": "required",
+        "source-prep": "required",
+        "speech-edit": "required",
+        "transcribe": "required",
+        "caption-correct": "required",
+        "timeline-lock": "required",
+        "storyboard": "optional",
+        "visual-design": "required",
+        "asset-gen": "skip",
+        "script-align": "required",
+        "assemble": "required",
+        "render": "required",
+        "qa": "required",
+        "deliver": "required"
+      },
+      "stageOverrides": {
+        "asset-gen": {
+          "note": {
+            "zh-TW": "不需要——畫面由 HTML/CSS/GSAP 產生。"
+          }
+        },
+        "script-align": {
+          "note": {
+            "zh-TW": "HyperFrames 片段的長度必須依 captions.json 訂，不能先做完動畫再硬塞。"
+          }
+        }
+      }
+    },
+    {
+      "id": "program-graphics",
+      "code": "M8",
+      "name": {
+        "zh-TW": "日式節目製作方式（Remotion Program Graphics）",
+        "en": "Program Graphics (Remotion)"
+      },
+      "tagline": {
+        "zh-TW": "純 Remotion 的進化版：節目識別 → 章節卡 → 在同一主構圖內逐層揭示人物、關係、年份、地圖、數值與結論。",
+        "en": "Evolved Remotion: programme ident → chapter cards → progressive reveal of people, relations, years, maps, figures and conclusions inside one master composition."
+      },
+      "bestFor": {
+        "zh-TW": [
+          "歷史",
+          "科普",
+          "商業",
+          "事件解析",
+          "系列型內容"
+        ]
+      },
+      "strengths": {
+        "zh-TW": [
+          "同一構圖連續揭示，資訊密度高",
+          "節目識別與模組可跨集重用",
+          "時間控制精準"
+        ]
+      },
+      "cautions": {
+        "zh-TW": [
+          "「日式節目」指的是節目化資訊設計方法，不要求套用日本文化視覺；美術風格必須依題材重新定義",
+          "不得把座標與安全區綁死在單一比例，須用 composition profile 與 layout variant",
+          "章節標題、場內資訊標籤與旁白字幕必須分層設計，場內標籤不能取代完整旁白字幕"
+        ]
+      },
+      "visualTrack": "code",
+      "inputs": {
+        "accepts": [
+          "talking-head-video",
+          "voiceover-audio",
+          "script-text",
+          "topic-brief"
+        ]
+      },
+      "aspects": {
+        "supported": [
+          "9:16",
+          "16:9",
+          "1:1",
+          "4:5",
+          "custom"
+        ],
+        "default": "16:9",
+        "note": {
+          "zh-TW": "本方式不限橫直式；各比例共用內容資料與動畫邏輯，但必須有獨立 layout variant 及安全區 QA。"
+        }
+      },
+      "requires": {
+        "tools": [
+          "node>=22",
+          "ffmpeg"
+        ],
+        "env": [],
+        "skills": [],
+        "submodules": []
+      },
+      "cost": {
+        "model": "none"
+      },
+      "stages": {
+        "intake": "required",
+        "source-prep": "required",
+        "speech-edit": "required",
+        "transcribe": "required",
+        "caption-correct": "required",
+        "timeline-lock": "required",
+        "storyboard": "required",
+        "visual-design": "required",
+        "asset-gen": "optional",
+        "script-align": "required",
+        "assemble": "required",
+        "render": "required",
+        "qa": "required",
+        "deliver": "required"
+      },
+      "guide": "docs/methods/program-graphics.md",
+      "stageOverrides": {
+        "storyboard": {
+          "name": {
+            "zh-TW": "Beat sheet 規劃",
+            "en": "Beat sheet"
+          },
+          "outputs": [
+            "src/data/programBeats.ts"
+          ],
+          "note": {
+            "zh-TW": "本方式的分鏡是 beat sheet，不是逐鏡分鏡表。每個 beat 要定義：① 這句要觀眾理解什麼 ② 畫面主構圖 ③ 依序出現的資訊物件（每次只新增一個理解步驟）④ 揭示時間點 ⑤ 退出或狀態改變。畫面可維持同一構圖數秒，但通常每 0.3–0.8 秒要有一個有意義的狀態變化。"
+          },
+          "rules": {
+            "zh-TW": [
+              "beat 的內容、時間碼與模組狀態全部放進 programBeats.ts；元件只負責畫面求值。",
+              "不要把逐字稿、時間、顏色、座標與動畫混寫在單一巨大 Composition.tsx。"
+            ]
+          }
+        },
+        "visual-design": {
+          "note": {
+            "zh-TW": "建立 composition profile（width/height/fps/safeArea/captionZone）與題材化轉場語法。可選模組：ProgramIdent、HookCard、ChapterCard、CharacterCard、Timeline、MapProgress、DataCounter、CauseEffectDiagram、SourceCard、NarrationCaptions。"
+          }
+        },
+        "asset-gen": {
+          "note": {
+            "zh-TW": "多數情況不需要；只有需要人物立繪或地圖底圖時才生成。"
+          }
+        },
+        "script-align": {
+          "name": {
+            "zh-TW": "關鍵詞揭示對時",
+            "en": "Cue Alignment"
+          },
+          "outputs": [
+            "src/data/programBeats.ts"
+          ],
+          "note": {
+            "zh-TW": "本方式沒有外部工具估算的秒數要校正，因此不做 fuzzy match。改為：在 captions.json 裡定位每個 beat 的觸發關鍵詞（人名、年份、地名、數值）與語音停頓，取該詞的 startMs 當揭示影格。"
+          },
+          "rules": {
+            "zh-TW": [
+              "揭示時間點對齊關鍵詞出現的那一刻，不依平均字數估算，也不平均分配。",
+              "同一個關鍵詞在旁白中重複出現時，用 beat 順序當單調游標挑正確的那一次。",
+              "一個 beat 內多個資訊物件依序揭示時，後續物件相對第一個關鍵詞做偏移，不要各自去比對字幕。",
+              "對完時間後要回頭確認：數字、日期、地圖與人物關係出現的時機與旁白講到的內容一致。"
+            ]
+          }
+        },
+        "qa": {
+          "note": {
+            "zh-TW": "先輸出節目識別、資訊最密集畫面、轉場中間幀與結尾畫面的完整解析度 still，檢查標題、資訊標籤、資料註記與字幕是否互相爭奪焦點。"
+          }
+        },
+        "assemble": {
+          "note": {
+            "zh-TW": "用 compositionProfile 驅動座標，禁止硬寫單一比例的數值。章節標題、場內資訊標籤、資料註記與旁白字幕分層掛載，場內標籤不得取代完整旁白字幕。"
+          },
+          "outputs": [
+            "src/Composition.tsx",
+            "src/layout/compositionProfiles.ts",
+            "src/theme/programTheme.ts"
+          ]
+        }
+      },
+      "qaArtifacts": {
+        "stills": "required",
+        "count": 6,
+        "note": {
+          "zh-TW": "節目識別、資訊最密集畫面、轉場中間幀與結尾畫面必須有完整解析度 still，並檢查標題／資訊標籤／資料註記／字幕是否互相爭奪焦點。"
+        }
+      }
+    }
+  ]
+}

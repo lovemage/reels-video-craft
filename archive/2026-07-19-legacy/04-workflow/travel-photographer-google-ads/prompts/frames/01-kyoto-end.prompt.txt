@@ -1,0 +1,7 @@
+Use case: ads-marketing
+Asset type: approved last frame for a 16:9 image-to-video travel advertisement
+Input image: preserve the exact woman, hairstyle, clothing, backpack, camera, Kyoto location, composition, light and watercolor style of the approved Kyoto start frame.
+Primary request: show the natural completion of one action only—the same woman has raised the same camera to her right eye and is composing a photograph through the viewfinder.
+Composition/framing: keep the same 16:9 medium-shot camera position and background perspective; elbows and shoulders relaxed; camera does not cover the entire face; vermilion torii remain recognizable.
+Constraints: identical identity and costume; anatomically correct hands and arms; one woman; one camera; plausible camera grip and strap continuity.
+Avoid: text, logo, watermark, UI, point-of-view overlay, Polaroid, extra person, duplicate camera, changed clothing, changed time of day, malformed fingers, frozen cutout appearance.

@@ -1,0 +1,50 @@
+id: travel-photographer-google-ads
+brand: aw-esim.com
+status: planned
+duration_seconds: 12
+fps: 30
+master:
+  aspect_ratio: "9:16"
+  width: 1080
+  height: 1920
+variants:
+  - aspect_ratio: "1:1"
+    width: 1080
+    height: 1080
+  - aspect_ratio: "16:9"
+    width: 1920
+    height: 1080
+locations:
+  - country: Japan
+    city: Kyoto
+    landmark: Fushimi Inari Taisha
+  - country: South Korea
+    city: Seoul
+    landmark: N Seoul Tower
+  - country: Thailand
+    city: Chiang Mai
+    landmark: ethical elephant sanctuary setting
+  - country: United States
+    city: San Francisco
+    landmark: Golden Gate Bridge
+references:
+  hero: references/character-airport.png
+  character_sheet: references/character-sheet.png
+workflow:
+  motion_generation: one_clip_per_location
+  required_frames_per_clip:
+    - start
+    - end
+  frame_approval: manual_per_image
+  video_generation_gate: both_frames_approved
+  primary_editor: davinci_resolve
+  remotion_scope:
+    - reusable_end_card
+    - exact_subtitles
+    - aspect_ratio_variants
+    - language_and_copy_variants
+  prohibited:
+    - static_character_pan_as_motion
+    - unapproved_frame_to_video
+    - generated_text_or_brand_ui
+    - single_generation_for_all_locations

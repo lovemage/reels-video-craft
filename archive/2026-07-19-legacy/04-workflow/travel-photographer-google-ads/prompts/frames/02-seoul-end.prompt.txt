@@ -1,0 +1,7 @@
+Use case: ads-marketing
+Asset type: approved last frame for a 16:9 image-to-video travel advertisement
+Input image: preserve the exact subject, costume, camera, Seoul location, framing, light and style of the approved Seoul start frame.
+Primary request: the same woman has naturally raised the same camera to her right eye to photograph N Seoul Tower.
+Composition/framing: same camera position and background perspective as the start frame; relaxed shoulders; tower remains visible; plausible elbows, hands, grip and strap.
+Constraints: one continuous lift action; exact identity and wardrobe; one woman; one camera.
+Avoid: text, logo, watermark, UI, POV overlay, Polaroid, changed face, changed tower, duplicate objects, malformed hands.

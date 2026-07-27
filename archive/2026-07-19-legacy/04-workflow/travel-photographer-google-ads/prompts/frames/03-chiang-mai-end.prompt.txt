@@ -1,0 +1,7 @@
+Use case: ads-marketing
+Asset type: approved last frame for a 16:9 image-to-video travel advertisement
+Input image: preserve the exact subject, costume, camera, Chiang Mai setting, framing, light and style of the approved Chiang Mai start frame.
+Primary request: the same woman has naturally raised the same camera to her right eye to photograph the distant free-walking elephant.
+Composition/framing: same camera position and background; relaxed posture; elephant remains secondary and distant; correct grip, elbows and strap continuity.
+Constraints: one continuous lift action; exact identity and wardrobe; one woman; one camera; respectful distance.
+Avoid: text, logo, watermark, UI, POV overlay, Polaroid, touching or riding the elephant, chains, duplicate objects, malformed hands.

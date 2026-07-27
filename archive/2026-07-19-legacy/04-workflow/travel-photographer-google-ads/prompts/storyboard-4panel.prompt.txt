@@ -1,0 +1,9 @@
+Use the attached character sheet only as the identity and costume reference. Create a clean 2×2 storyboard contact sheet for a 12-second vertical travel advertisement. High-end Japanese watercolor anime illustration, delicate ink lines, transparent watercolor, subtle paper texture, cinematic natural light. The exact same woman appears in all four panels: East Asian woman in her twenties, black hair in a loose low bun with wispy strands, blue-gray overshirt over a plain white T-shirt, charcoal cargo pants, outdoor shoes, large burnt-orange hiking backpack, the same vintage rose-gold and black mirrorless camera.
+
+Panel 1, upper left: Kyoto, Japan, Fushimi Inari vermilion torii tunnel at morning, she walks through the gates and begins raising her camera. Strong red leading lines.
+Panel 2, upper right: Seoul, South Korea, N Seoul Tower clearly recognizable at blue hour, she photographs the tower. Cool blue and violet city light.
+Panel 3, lower left: Chiang Mai, Thailand, ethical elephant sanctuary environment, she photographs one calm Asian elephant from a respectful distance. No riding, chains, feeding, touching, bathing, performance, mahout pose, or exploitation. Warm green and golden afternoon light.
+Panel 4, lower right: San Francisco, United States, Golden Gate Bridge clearly visible over the bay, ocean wind moves her loose hair and overshirt as she frames a panoramic photograph. Sky blue, bridge red, soft fog.
+
+Each panel must show one clear action, one landmark, and the same face, outfit, backpack and camera. Natural human anatomy and hands. Leave modest clean negative space near the upper-left of every panel for later country labels. Do not generate any letters, captions, logos, flags, UI, watermark, border text, extra protagonists, costume changes or location mixing. Square overall canvas, four equal panels with thin warm-white gutters.
+

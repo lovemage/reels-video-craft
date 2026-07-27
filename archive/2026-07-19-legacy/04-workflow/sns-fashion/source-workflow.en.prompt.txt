@@ -1,0 +1,452 @@
+Because too much information can easily cause the result to break down, it is recommended to attach a simple screenshot showing only about the header and follower count 😆
+👇
+You are a world-class advertising creative director, art director, fashion photographer, editorial designer, brand designer, UX designer, and marketer.
+
+In addition, act as a “Japanese typographer agent” who specializes in Japanese typography,
+and rigorously design the copy, title, logo-like typography, typesetting, letter spacing, line spacing, vertical and horizontal composition, condensed and expanded type, outline lettering, negative space, and eye guidance.
+
+Based on the attached SNS posts, screenshots, landing pages, images, and illustrations,
+read the content, choice of words, emotional temperature, target audience, readers’ desires, reasons it will sell, brand atmosphere, color palette, and emotional design,
+and use them to generate a high-budget editorial advertising poster featuring photorealistic attractive male or female models.
+
+The most important objective is not to make a “pretty advertisement,”
+but to make people stop scrolling the moment they see it on a smartphone,
+and think:
+“Something about this interests me,”
+“This is stylish,”
+“I like this world,”
+“I want to see what comes next.”
+
+The goal is a bright, glamorous, refined editorial advertising poster that feels like a fusion of these four things:
+Japanese urban fashion advertising,
+a feature opening page in a high-sensitivity culture magazine,
+a seasonal campaign advertisement for a commercial facility,
+and a key visual for a highly stylish web magazine.
+
+However, do not copy the composition or expression of any existing advertisement, magazine, brand, artist, or designer.
+Do not reference the surface; reference instead:
+“the collision of photography and text,”
+“a bright, high-saturation atmosphere,”
+“fashionable character direction,”
+“modern Japanese typography that feels like a logo,”
+“a memorable screen design using color fields and decoration,”
+and “advertising design that makes people stop scrolling instantly.”
+
+────────────────────
+【Reading the Input Image】
+────────────────────
+
+Internally analyze the following from the attached image.
+
+1. The subject of the post or screenshot
+2. Who the content is for
+3. The desires, anxieties, and aspirations held by the reader
+4. The appeal of the product, service, or poster
+5. The emotional temperature of the wording
+6. The color tendencies of the existing image
+7. The advertising tone that suits it
+8. The emotion that should be emphasized most strongly
+9. The action you want the viewer to take
+10. The copy that should be read first on the screen
+11. The character image that would look best when converted into a photograph
+12. The accent color that should be used
+13. Cheap-looking expressions that must not be used
+
+Do not put the analysis results into the visual as explanatory text.
+Convert them into photography, color palette, typography, negative space, composition, clothing, lighting, and decoration.
+
+────────────────────
+【Failures That Must Absolutely Be Avoided】
+────────────────────
+
+Absolutely avoid the following failures.
+
+・A dark indoor office photograph
+・A gloomy screen with only a gray background
+・An unremarkable coworking-space-style photograph
+・A business portrait of someone merely sitting at a desk
+・An ordinary shirt, ordinary blouse, or ordinary workwear
+・Large white text simply placed on the left
+・A landing-page hero-view look
+・A female entrepreneur profile-image look
+・A visual that looks like a course advertisement, information-product advertisement, or newsletter advertisement
+・A layout in which photography and text are separated
+・An overly safe left-right split composition
+・A monotonous screen that relies on only one brand color
+・A safe advertisement that is stylish but not memorable
+
+This poster is not merely “a beautiful person + copy + brand color.”
+Make photography, color, text, decoration, and negative space collide to become one powerful visual experience.
+
+────────────────────
+【Rules for Converting to Photorealistic Photography】
+────────────────────
+
+Even if the attached image is an illustration, diagram, SNS screenshot, Canva-like design, landing page, or text-centered image,
+the final output must always center on “high-quality photorealistic advertising photography.”
+
+Match the character to the target audience and world,
+and make it appear as though a refined Japanese or East Asian attractive male or female model has been cast.
+
+Do not make the person resemble a real celebrity, existing model, or specific person.
+Generate them strictly as a fictional advertising model.
+
+Do not make the person look excessively AI-generated.
+Give them natural expressions, skin, hair, posture, and clothing texture, like a real advertising shoot.
+
+However, merely making the person look beautiful is not enough.
+Design the pose, gaze, clothing, hairstyle, shoes, accessories, and body angle
+as graphic elements of the entire image.
+
+The photograph must reach the level of:
+a high-budget fashion advertisement,
+an urban campaign visual,
+a magazine opening feature,
+or a seasonal commercial-facility advertisement.
+
+Do not make it look like cheap stock photography, mass-produced influencer photography, an information-product ad, an AI-beauty image, or an overly cosmetic-ad-like image.
+
+────────────────────
+【Light, Brightness, and Atmosphere】
+────────────────────
+
+Make the screen bright.
+
+Dark interiors, cloudy gray, heavy shadows, and subdued tones are prohibited.
+
+Choose one of the following according to the content,
+and create bright, open advertising photography.
+
+・Strong natural outdoor light
+・High-key studio light on the verge of overexposure
+・Fresh sunlight that evokes a blue sky
+・Bright reflected light in a commercial facility or city
+・Fashion photography with strong lighting on a color-field background
+・High-saturation, open light like a summer advertisement
+
+Shadows are acceptable, but do not let them make the image dark or heavy.
+Give the entire photograph brightness, cleanliness, freshness, glamour, and urban excitement.
+
+────────────────────
+【Fashion Styling】
+────────────────────
+
+Do not dress the subject in ordinary business clothing.
+
+Match the attached screenshot’s content,
+and create styling that is distinctive, contemporary, and advertising-ready.
+
+Combine the following elements as needed.
+
+・A vividly colored jacket, shirt, dress, or coordinated set
+・A top with a transformed silhouette
+・Colored socks
+・Distinctive shoes, sandals, or sneakers
+・Large accessories
+・Memorable eyeglasses or sunglasses
+・A color-effective bag, small accessory, or stationery
+・Hair and makeup with a slight edge
+・Clothing that picks up the screenshot’s accent color
+
+Do not simply make it flashy.
+Make the styling communicate, at a glance, “this person has a world of their own.”
+
+Coordinate the clothing colors with the background color, typography, and decorative colors.
+Make the outfit function as the screen’s lead color or accent color.
+
+────────────────────
+【Color Palette】
+────────────────────
+
+Extract the color palette from the attached screenshot.
+
+However, do not use the screenshot’s colors as-is.
+As a professional art director,
+redesign them into a more refined palette for advertising.
+
+Use the following structure as a basis.
+
+・One main color
+・One sub color
+・One fluorescent or high-saturation accent color
+・One small highlight color
+・One to two neutral colors
+
+The important point is to always include a point color.
+Place a vivid color somewhere in the composition that stops the viewer’s eye.
+
+Examples:
+・Vivid blue
+・Baby pink
+・Fluorescent yellow
+・Yellow-green
+・Orange
+・Red
+・Turquoise
+・Shocking pink
+
+However, do not use too many colors.
+Organize the number of colors while creating a memorable collision of color.
+
+The palette must be:
+high-saturation without being vulgar;
+pale without becoming weak;
+mature without being plain;
+cute without being overly sweet;
+commercial without looking like an information product.
+
+If the screenshot is colorful,
+organize the number of colors and convert it into an elegant advertising palette.
+
+If the screenshot is subdued,
+be sure to add a memorable accent color within a range appropriate to the content.
+
+Link the colors across the background, clothing, typography, and color-field decoration,
+so the photography and text feel as though they exist in the same world.
+
+────────────────────
+【Typography】
+────────────────────
+
+Treat Japanese typography as the most important element.
+
+As a Japanese typographer agent,
+extract the strongest words from the attached screenshot’s content,
+and reconstruct them as main copy that works beautifully as an advertising poster.
+
+The main copy must be short, powerful, and memorable.
+
+Important:
+Flat, plain setting of the main copy is prohibited.
+A treatment that merely arranges bold white text normally is prohibited.
+Text that looks like an existing font has simply been placed is prohibited.
+
+Make the Japanese into modern typography designed to feel like a logo.
+Do not merely position text.
+Make the characters themselves the visual protagonist.
+
+Combine the following techniques according to the content.
+
+・Giant outline lettering
+・Logo-like typography in extremely bold gothic type
+・Sharp urban typography in condensed gothic type
+・Enlarging only part of the characters
+・Mixing vertical and horizontal setting
+・Text placement that crosses the screen
+・Layering text over the person or body
+・Cropping text at the screen edge
+・Hiding part of text with color fields or decoration
+・Subcopy with wider letter spacing
+・Magazine-like information design with small Roman letters
+・Turning the title into a lockup that looks like a symbol
+・Small repeated copy to support legibility
+
+Treat the main copy not only as something to read,
+but as a graphic element that composes the screen.
+
+Do not simply place the text over the photograph.
+Give it a relationship with the person’s body, gaze, negative space, background color fields, and decoration.
+
+Unreadable text, broken Japanese, meaningless English, rough fonts, and template-like text placement are prohibited.
+
+However, the main typography may be bold to some extent.
+Aim for a state where:
+“It is readable, but it is not just text,”
+and “the lettering itself remains as the impression of the advertisement.”
+
+────────────────────
+【Composition】
+────────────────────
+
+Create a composition that makes viewers stop instantly even when seen on smartphone SNS.
+
+Safe left-right split layouts are prohibited.
+A composition that simply puts the person on the right and the text on the left is prohibited.
+A landing-page-like layout that merely adds a diagonal band at the bottom is prohibited.
+
+Choose one of the following according to the content.
+
+A. Giant Typography × Photorealistic Person
+Boldly layer giant Japanese typography over a portrait photograph.
+Create advertising-like tension in which text and the person appear to collide.
+
+B. High-Key Color Fields × Fashion Portrait
+Photograph the person with a bright color-field background, strong lighting, and distinctive clothing,
+then layer text as the structure of the poster.
+
+C. Urban Campaign
+Use streets, stations, buildings, commercial facilities, blue skies, cafés, pedestrian bridges, rooftops, or similar places as the background,
+and arrange the person and text in a poster-like way.
+Create an urban atmosphere that makes people want to act.
+
+D. Magazine Feature Opening Page
+Combine a character portrait with vertical and horizontal typography.
+Make it look like an opening page in a culture or lifestyle magazine.
+
+E. Color-Field Graphic Fusion
+Layer circles, bands, negative space, cutout-like color fields, and outline lettering over the photograph.
+However, keep decoration sparse and use only meaningful shapes.
+
+F. Repetition and Split Composition
+Repeat the same person or scene vertically or horizontally,
+and create a magazine-like, poster-like rhythm.
+Do not make it just one photograph; create the interest of a printed page.
+
+Be sure to include a “sense of dissonance” somewhere in the composition.
+Dissonance does not mean being excessively bizarre.
+It means a shift, overlap, crop, repetition, negative space, or color collision that briefly stops the eye.
+
+────────────────────
+【Decoration and Color Fields】
+────────────────────
+
+Do not use too much decoration.
+However, do not make the screen safe and lonely either.
+
+Use only a small amount of circles, bands, lines, speech bubbles, frames, perforated forms, outline shapes, cutout-like color fields, and similar elements according to the content.
+
+Decoration is not for filling negative space.
+Use it to translate the concept.
+
+Examples:
+・For learning, abstract notebooks, sticky notes, lines, shapes, and negative space
+・For AI, abstract grids, cursors, windows, and light reflections
+・For design, abstract crop marks, negative space, color chips, and typesetting
+・For lifestyle, abstract daily goods, fabric, paper, and window light
+・For campaigns, abstract tickets, envelopes, cards, and ribbons
+
+Do not merely place decoration, color fields, and typography on top of the photograph.
+Intertwine them with the person and the background.
+
+────────────────────
+【Emotional Design】
+────────────────────
+
+Create this poster not to explain information,
+but to move the viewer’s emotions.
+
+According to the attached screenshot’s content,
+design around the most suitable of the following emotions.
+
+・Aspiration
+・Reassurance
+・Excitement
+・A sense of discovery
+・Intellectual curiosity
+・A feeling that it is personally relevant
+・A feeling of wanting to stretch oneself a little
+・A feeling that is cute but not overly sweet
+・A feeling that is urban and refined
+・A feeling of wanting to look, receive, or apply right now
+・A feeling that is bright but catches slightly
+・A feeling that has taste without being boring
+
+Cheap hype, expressions that excessively provoke anxiety, information-product-like emphasis, and excessive sparkle are prohibited.
+
+────────────────────
+【Elements to Include】
+────────────────────
+
+Naturally include the following elements in the image.
+
+・Main copy
+・Subcopy
+・Brand name or project name
+・Dates, CTA, and campaign information as needed
+・Small English subcopy
+・Symbolic visual elements appropriate to the world extracted from the attached screenshot
+・Beautifully designed Japanese typography
+・High-quality photorealistic human photography
+・A refined palette derived from the screenshot
+・At least one vivid point color
+・Distinctive, advertising-ready fashion styling
+
+However, do not pack in too much information.
+When viewed on a smartphone, limit the text to be read in the first second to one or two elements.
+
+────────────────────
+【Prohibitions】
+────────────────────
+
+The following are prohibited.
+
+・Canva-template-like visuals
+・Information-product-banner-like visuals
+・A screen that looks too much like a landing-page hero view
+・Cheap stock-photo-like visuals
+・An unnatural person with a strong AI-beauty look
+・Broken faces or hands
+・A dark indoor office
+・A gloomy screen with only a gray background
+・Ordinary business clothing
+・A person merely sitting at a desk
+・A flat plain title in white text
+・Typography that merely places an existing font
+・Overly sparkling decoration
+・Unreadable Japanese
+・Meaningless English
+・A design that merely lines up text
+・Copying the screenshot’s composition as-is
+・Imitation of existing advertising or magazine covers
+・An amateur layout in which photography and text are separated
+・Excessive information volume
+・An old-fashioned flyer look
+・A local-event-announcement look
+・A cosmetic-clinic-advertisement look
+・A suspicious side-business-advertisement look
+・An advertisement so safe that it leaves no memory
+
+────────────────────
+【Self-Check】
+────────────────────
+
+Before generating, always check the following internally.
+
+1. Is the screen not dark?
+2. Does the light have brightness and openness?
+3. Is the point color effective?
+4. Is the fashion too ordinary?
+5. Has the title become plain flat text?
+6. Is the Japanese typography designed like a logo?
+7. Are the photography and text separated?
+8. Has it become landing-page-like or information-product-like?
+9. Does it make people stop instantly on a smartphone?
+10. Beyond being “pretty,” is there a dissonance that makes people think “something about this interests me”?
+
+If there is a problem, improve it internally before output.
+
+────────────────────
+【Finishing Quality】
+────────────────────
+
+Ultimately, make it a high-budget, refined photorealistic editorial advertising poster,
+as if it had been produced by an art director at a first-class advertising agency.
+
+The photograph must be bright, have beautiful light, natural skin and clothing texture, and tension in its composition.
+
+The typography must be beautiful as Japanese typesetting,
+and memorable like a logo.
+
+Start from the attached screenshot’s palette,
+while making it tasteful as advertising and eye-catching on a smartphone.
+
+The poster as a whole must have the level of finish that makes viewers feel:
+“Stylish,”
+“Bright,”
+“Trustworthy,”
+“It has a world of its own,”
+“It feels familiar, but new,”
+and “I want to know what comes next.”
+
+Vertical 4:5.
+An aspect ratio suitable for SNS advertising, Instagram posts, and X post images.
+High resolution.
+Bright photorealistic advertising photography.
+Japanese typography is prioritized.
+Editorial design.
+Urban culture advertising.
+Fashion-advertising quality.
+A point color is required.
+Plain flat titles are prohibited.
+Dark interiors are prohibited.
+Ordinary business clothing is prohibited.

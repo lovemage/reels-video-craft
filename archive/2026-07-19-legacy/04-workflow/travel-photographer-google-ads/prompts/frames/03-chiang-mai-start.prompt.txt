@@ -1,0 +1,10 @@
+Use case: ads-marketing
+Asset type: approved first frame for a 16:9 image-to-video travel advertisement
+Input image: use the attached approved character reference as the exact identity, hairstyle, clothing, backpack and camera reference.
+Scene/backdrop: an ethical elephant sanctuary landscape near Chiang Mai, lush tropical vegetation; one elephant walking freely at a respectful distance with no riding, chains, performance or touching.
+Subject: the same woman standing naturally, holding the camera with both hands at mid-chest and preparing to raise it.
+Style/medium: premium Japanese watercolor animation, refined ink lines, subtle paper grain.
+Composition/framing: 16:9 medium shot; woman about 55% of frame height; elephant clearly secondary and safely distant; room for natural arm movement.
+Lighting/mood: soft warm afternoon filtered through leaves.
+Constraints: exact identity, outfit, backpack and camera; correct hands; one woman; one camera; animal welfare respected.
+Avoid: text, logo, watermark, UI, elephant riding, chains, tricks, feeding, touching, duplicate camera, malformed anatomy, collage.

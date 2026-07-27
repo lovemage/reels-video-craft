@@ -1,0 +1,10 @@
+Use case: ads-marketing
+Asset type: approved first frame for a 16:9 image-to-video travel advertisement
+Input image: use the attached approved character reference as the exact identity, hairstyle, clothing, backpack and camera reference.
+Scene/backdrop: a believable San Francisco bay viewpoint at golden hour, Golden Gate Bridge clearly recognizable across water and light sea mist.
+Subject: the same woman standing naturally, holding the camera with both hands at mid-chest and preparing to raise it.
+Style/medium: premium Japanese watercolor animation, refined ink lines, subtle paper grain.
+Composition/framing: 16:9 medium shot; woman about 55% of frame height; bridge spans the background without intersecting her face; room for arm movement.
+Lighting/mood: warm backlight, gentle bay breeze, restrained cinematic atmosphere.
+Constraints: exact identity, outfit, backpack and camera; correct hands; one woman; one camera.
+Avoid: text, logo, watermark, UI, New York landmarks, incorrect bridge structure, duplicate camera, extra fingers, collage.

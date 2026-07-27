@@ -1,0 +1,13 @@
+5-second horizontal 16:9 image-to-video proof of concept. Preserve the supplied first frame exactly as the same woman's identity, blue-gray overshirt, burnt-orange backpack, rose-gold and black camera, Fushimi Inari setting and Japanese watercolor-anime style reference.
+
+[00:00-00:00.75] EXTREME MACRO locked on the burnt-orange backpack side-pocket zipper. Her hand opens it and naturally slides the same camera partway out. Keep the zipper, bag opening, camera grip and strap physically continuous. Synchronized zipper, fabric and strap sounds.
+
+[00:00.75-00:01.25] CLOSE DETAIL locked on the camera lens as she raises it to shooting position. The circular black lens moves smoothly into the exact center and fills the frame as an optical transition. No hard cut.
+
+[00:01.25-00:03.20] FULL-SCREEN FIRST-PERSON CAMERA VIEWFINDER POV. We now see exactly through her camera, aimed directly and symmetrically down the Fushimi Inari vermilion torii tunnel. The shrine landscape is the main image; the woman, backpack and external camera body are no longer visible. Begin slightly out of focus. Use only thin viewfinder corner guides and one simple central focus bracket, no fake letters or numbers. A short autofocus servo moves the shrine from soft to perfectly sharp; the central focus bracket changes from white to green exactly with one soft AF confirmation beep. Hold the sharp shrine composition long enough to read.
+
+[00:03.20-00:03.45] The shutter is pressed. Play one crisp mechanical "KATA / ka-cha" shutter sound. Add a one-frame viewfinder blackout followed by a two-to-four-frame white shutter flash. Preserve the shrine composition.
+
+[00:03.45-00:05.00] The exact captured shrine composition immediately becomes the photo area of one centered warm-white Polaroid card. The card slides forward gently and settles with a subtle paper motion. Its lower white border is deliberately wide and completely blank for post-production text. Do not generate letters, URLs, logos or gibberish. Keep the Polaroid centered and stable through the final frame so the exact text aw-esim.com can be overlaid later.
+
+Direction: precise, luxurious and smooth. The key storytelling order is backpack camera removal → lens fills frame → true viewfinder POV aimed at Kyoto shrine → focus lock → KATA shutter → same image becomes Polaroid. No external side view during the viewfinder section, no viewfinder pointed at the woman, no wrong landmark, no morphing torii, no duplicate camera, face change, extra person, whip pan, generated text, logo or watermark. Restrained bright travel beat under intimate real camera sounds. No spoken dialogue.

@@ -1,0 +1,37 @@
+{
+  "name": "video-flow",
+  "version": "0.1.0",
+  "description": "Agent-and-human video production workflow: a machine-readable registry of production methods, an interactive intake, per-method stage plans, and automated delivery QA.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "video-flow": "flow/cli/index.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "flow": "node flow/cli/index.mjs",
+    "docs": "node flow/cli/index.mjs docs",
+    "docs:check": "node flow/cli/index.mjs docs --check",
+    "doctor": "node flow/cli/index.mjs doctor",
+    "test": "node --test 'flow/test/*.test.mjs'",
+    "validate": "node flow/cli/index.mjs validate",
+    "check": "npm run validate && npm test && npm run docs:check"
+  },
+  "files": [
+    "flow/",
+    "docs/",
+    "README.md",
+    "README.zh-TW.md",
+    "AGENTS.md"
+  ],
+  "keywords": [
+    "video",
+    "remotion",
+    "workflow",
+    "agent",
+    "ai-video",
+    "storyboard"
+  ]
+}

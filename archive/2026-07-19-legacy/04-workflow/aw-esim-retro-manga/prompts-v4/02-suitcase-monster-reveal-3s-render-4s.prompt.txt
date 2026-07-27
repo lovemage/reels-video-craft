@@ -1,0 +1,21 @@
+AW eSIM visual ad — Cut 02, render duration 4 seconds, 16:9. The deliverable is the first 3.00 seconds only; 3.00–4.00 seconds is a stable safety handle to be trimmed in post. Use the supplied Cut 1 tail image as the exact first frame. Use the supplied crop of the latest Cut 2 2×2 storyboard's lower-right panel as the exact 3.00-second reaction composition, then hold it for the fourth-second trimming handle. Preserve the same adult East Asian woman, face, wild short black hair, yellow windbreaker, dark shirt, burgundy shorts, black running shoes, wired earphones, charcoal backpack, teal-glass airport, one worn burgundy suitcase, running direction, and retro manga cinematic rendering.
+
+The suitcase remains completely CLOSED for the entire 4-second render. It never opens, never splits into halves, and never reveals its interior. The event happens only through a tiny zipper seam.
+
+0.00–0.65s: Continue the Cut 1 running motion. The woman runs left-to-right while pulling exactly one closed burgundy suitcase. The suitcase begins to vibrate subtly.
+
+0.65–1.25s: Perform a motivated fast push-in to an extreme macro close-up of the suitcase zipper teeth. From one tiny 1–2 cm gap in the closed zipper seam, exactly one completely blank off-white paper strip slowly slips out and curls upward. No monster face yet and no extra paper.
+
+1.25–2.15s: Pull back slightly while keeping the closed suitcase in view. The same single paper strip remains continuously attached to the zipper gap and twists, folds and coils by itself in midair. It progressively forms a small threatening paper monster silhouette: round folded-paper head, two slanted dark eye openings, one dark open mouth, and exactly two paper arms. No legs and no scattered bills.
+
+2.15–3.00s: Cut to a medium-wide reaction shot and arrive precisely at the supplied lower-right storyboard composition. The woman turns her head and upper body back toward the newly formed floating paper monster. Her eyes widen and mouth opens slightly in clear surprise. Both hands remain empty and visible. She does not reach for or hold a phone. The single suitcase remains closed behind her, and the monster's paper tail stays visibly connected to the narrow zipper seam. Reach the full surprised-reaction composition precisely at 3.00 seconds.
+
+3.00–4.00s: Hold the same medium-wide reaction composition and motion continuity as a trimming handle. The woman, the closed suitcase, and the connected paper monster keep their positions and appearance. Do not introduce an action, camera move, object, transformation, text, or transition after 3.00 seconds.
+
+Style: original mature retro Japanese manga cinema hybrid, precise dark ink, restrained cel shading, subtle paper grain, teal-and-warm-yellow palette, dynamic but anatomically correct motion. No visible written language.
+
+Native sound only: running shoes on polished floor, suitcase wheels, subtle case rattle, tiny zipper vibration, dry paper sliding through a narrow seam, rapid origami-like folding crackles, a short uncanny paper flutter, and one quiet surprised inhale from the woman. No dialogue, voice-over, music, or lyrics.
+
+Strict constraints: exactly one woman, exactly one closed suitcase, exactly one continuous blank paper strip, exactly two legs and two feet for the woman, exactly two arms and no legs for the monster. Preserve character and suitcase identity.
+
+Negative prompt: open suitcase, lifted lid, side-open suitcase, two suitcase halves, suitcase interior, second suitcase, duplicate luggage, multiple paper strips, loose bills, printed paper, text, letters, numbers, symbols, subtitles, airport signs, logos, watermark, phone, smartphone, phone UI, phone glow, extra people, third leg, duplicate feet, extra hands, extra monster arms, monster legs, character redesign, suitcase redesign, jump cut during transformation, morphing into a human.

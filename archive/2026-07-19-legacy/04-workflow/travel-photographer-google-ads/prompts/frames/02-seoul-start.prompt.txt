@@ -1,0 +1,10 @@
+Use case: ads-marketing
+Asset type: approved first frame for a 16:9 image-to-video travel advertisement
+Input image: use the attached approved character reference as the exact identity, hairstyle, clothing, backpack and camera reference.
+Scene/backdrop: Seoul at blue hour from a believable public viewpoint, N Seoul Tower clearly recognizable and not confused with a Japanese tower.
+Subject: the same woman standing naturally, holding the camera with both hands at mid-chest and preparing to raise it.
+Style/medium: premium Japanese watercolor animation, refined ink lines, subtle paper grain.
+Composition/framing: 16:9 medium shot with enough space for her arms to lift; woman about 55% of frame height; tower visible in the upper background.
+Lighting/mood: cool blue ambient light with restrained warm city lights.
+Constraints: exact identity, low bun, blue-gray overshirt, white T-shirt, charcoal trousers, burnt-orange backpack, rose-gold/black camera; correct hands; one woman; one camera.
+Avoid: text, logo, watermark, UI, crowds, Tokyo landmarks, duplicate camera, extra fingers, collage.

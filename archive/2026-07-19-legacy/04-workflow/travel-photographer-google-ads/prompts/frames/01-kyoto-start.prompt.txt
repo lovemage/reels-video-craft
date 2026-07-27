@@ -1,0 +1,10 @@
+Use case: ads-marketing
+Asset type: approved first frame for a 16:9 image-to-video travel advertisement
+Input image: use the attached character sheet only as the exact identity, hairstyle, clothing, burnt-orange backpack, and rose-gold/black camera reference; do not reproduce the sheet layout.
+Scene/backdrop: early-morning Fushimi Inari in Kyoto, recognizable vermilion torii tunnel with natural depth and no crowds.
+Subject: the same East Asian woman in her twenties, standing naturally three-quarter to camera, holding the camera with both hands at mid-chest and preparing to raise it.
+Style/medium: premium Japanese watercolor animation, refined ink lines, subtle paper grain, cinematic but natural character acting.
+Composition/framing: 16:9 medium shot; the woman occupies about 55% of frame height; torii remain clearly identifiable; room for natural arm movement toward the end pose.
+Lighting/mood: soft directional morning light, calm anticipation.
+Constraints: exact face, low bun, blue-gray overshirt, white T-shirt, charcoal trousers, backpack, camera and strap; anatomically correct hands; one woman; one camera.
+Avoid: text, logo, watermark, UI, flags, signs, crowds, cherry blossoms, Tokyo landmarks, duplicate camera, extra fingers, frozen poster pose, collage.

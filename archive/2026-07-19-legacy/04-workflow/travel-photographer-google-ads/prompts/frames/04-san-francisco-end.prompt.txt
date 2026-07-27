@@ -1,0 +1,7 @@
+Use case: ads-marketing
+Asset type: approved last frame for a 16:9 image-to-video travel advertisement
+Input image: preserve the exact subject, costume, camera, San Francisco setting, framing, light and style of the approved San Francisco start frame.
+Primary request: the same woman has naturally raised the same camera to her right eye to photograph the Golden Gate Bridge.
+Composition/framing: same 16:9 camera position and background perspective; relaxed shoulders; bridge remains recognizable; plausible hand grip, elbows and strap continuity.
+Constraints: one continuous lift action; exact identity and wardrobe; one woman; one camera.
+Avoid: text, logo, watermark, UI, POV overlay, Polaroid, changed bridge, duplicate objects, malformed hands.

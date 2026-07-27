@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "description": "Intake 問答定義。順序有意義：先問輸入與觀看情境，才能用它們過濾出可行的製作方式。沒有任何一題有預設值——前一支影片的設定不能當這一支的預設。",
+  "rules": {
+    "zh-TW": [
+      "逐題等待明確答案，不得替未回答的題目假設預設值。",
+      "使用者一次只答部分題目時，只追問還沒確認的項目。",
+      "「你決定」「都可以」「隨便」視為尚未確認：可提出一個具體建議，但仍須使用者對該建議表態。",
+      "全部確認前只能整理需求與選項，不得生成素材、呼叫付費 API 或開始渲染。"
+    ]
+  },
+  "questions": [
+    {
+      "id": "project",
+      "order": 1,
+      "type": "text",
+      "prompt": { "zh-TW": "專案代號（英數與 -，用作資料夾名稱）", "en": "Project slug" },
+      "validate": "^[a-z0-9][a-z0-9-]*$"
+    },
+    {
+      "id": "input",
+      "order": 2,
+      "type": "single",
+      "prompt": { "zh-TW": "你這次提供的原始素材是什麼？", "en": "What source material are you supplying?" },
+      "optionsFrom": "inputTypes",
+      "drives": ["methodFilter", "stageFilter"],
+      "note": { "zh-TW": "這題決定要不要跑 auto-editor 口播剪輯與轉錄，也會篩掉不吃這種輸入的製作方式。" }
+    },
+    {
+      "id": "aspect",
+      "order": 3,
+      "type": "single",
+      "prompt": { "zh-TW": "這支片主要在哪裡被看到？", "en": "Where will this mainly be watched?" },
+      "optionsFrom": "aspects",
+      "drives": ["methodFilter"],
+      "note": { "zh-TW": "手機直式與電腦橫式會篩掉不同的製作方式；例如手繪類目前只支援直式。" }
+    },
+    {
+      "id": "method",
+      "order": 4,
+      "type": "single",
+      "prompt": { "zh-TW": "要用哪一套製作方式？", "en": "Which production method?" },
+      "optionsFrom": "methods",
+      "filterBy": ["input", "aspect"],
+      "note": { "zh-TW": "選項已依前兩題過濾。若想用被篩掉的方式，要先改輸入或比例。" }
+    },
+    {
+      "id": "voice",
+      "order": 5,
+      "type": "single",
+      "prompt": { "zh-TW": "配音要使用哪一種？", "en": "Which narration route?" },
+      "skipIf": { "stageSkipped": "speech-edit" },
+      "options": [
+        { "id": "human", "name": { "zh-TW": "使用者提供的真人錄音", "en": "User-supplied human recording" } },
+        {
+          "id": "tts",
+          "name": { "zh-TW": "AI TTS", "en": "AI TTS" },
+          "followUp": [
+            { "id": "ttsModel", "type": "text", "prompt": { "zh-TW": "TTS 模型（例如 x-ai/grok-voice-tts-1.0）" }, "requiresEnv": ["OPENROUTER_API_KEY"] },
+            { "id": "ttsVoice", "type": "text", "prompt": { "zh-TW": "聲線（例如 rex；不得自動沿用前一支的聲線）" } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "captions",
+      "order": 6,
+      "type": "single",
+      "prompt": { "zh-TW": "字幕要使用哪一種？", "en": "Which caption treatment?" },
+      "skipIf": { "stageSkipped": "caption-correct" },
+      "options": [
+        {
+          "id": "plain",
+          "name": { "zh-TW": "一般清楚字幕", "en": "Plain legible captions" },
+          "note": { "zh-TW": "仍須以本次交付尺寸做完整解析度畫格可讀性 QA。" }
+        },
+        {
+          "id": "designed",
+          "name": { "zh-TW": "設計高光字幕", "en": "Designed highlight captions" },
+          "note": { "zh-TW": "必須沿用或建立本專案已確認的字型、色彩、描邊、版位與高光邏輯。沒有既有設計時，先提出字幕視覺稿並取得確認才可實作。不得以共用 kit、預設 TikTok 字幕或一般底卡字幕冒充。" }
+        }
+      ]
+    },
+    {
+      "id": "mascot",
+      "order": 7,
+      "type": "single",
+      "prompt": { "zh-TW": "要不要加吉祥物／角色動畫？", "en": "Add a mascot/companion character?" },
+      "skipIf": { "answerNot": { "captions": "designed" } },
+      "options": [
+        { "id": "none", "name": { "zh-TW": "不加", "en": "No" } },
+        { "id": "kit", "name": { "zh-TW": "沿用 subtitle-mascot-kit 的角色", "en": "Reuse the shared kit character" }, "note": { "zh-TW": "站位座標必須配合本專案字幕版位重新確認，不得直接沿用通用座標。" } },
+        { "id": "custom", "name": { "zh-TW": "本專案自製角色", "en": "Custom character for this project" } }
+      ]
+    },
+    {
+      "id": "bgm",
+      "order": 8,
+      "type": "single",
+      "prompt": { "zh-TW": "是否使用背景音樂？", "en": "Background music?" },
+      "options": [
+        { "id": "none", "name": { "zh-TW": "不使用", "en": "None" } },
+        { "id": "supplied", "name": { "zh-TW": "使用我提供的曲目／音檔", "en": "User-supplied track" }, "followUp": [{ "id": "bgmSource", "type": "text", "prompt": { "zh-TW": "曲目來源／連結（下載前須確認授權與是否需標註）" } }] },
+        { "id": "library", "name": { "zh-TW": "從已確認可用的音樂庫挑選", "en": "Pick from the cleared library" }, "note": { "zh-TW": "音樂庫路徑在 flow.config.json 的 assets.bgmLibrary；選定後直接隨機取一首，無須逐首確認。" } }
+      ]
+    },
+    {
+      "id": "duration",
+      "order": 9,
+      "type": "text",
+      "prompt": { "zh-TW": "目標片長（秒；Reels 建議 60 秒內，可填「依旁白」）", "en": "Target length in seconds" },
+      "default": "依旁白"
+    }
+  ]
+}
