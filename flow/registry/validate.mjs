@@ -33,6 +33,14 @@ export function validateRegistry() {
     if (!localised(s.name)) err(at, 'name 必須是 {zh-TW,...}');
     if (!localised(s.summary)) err(at, 'summary 必須是 {zh-TW,...}');
     if (!GATES.has(s.gate)) err(at, `gate「${s.gate}」無效`);
+    for (const [ci, conditional] of (s.conditionalOutputs ?? []).entries()) {
+      if (!conditional.when?.field || conditional.when.equals == null) {
+        err(`${at}.conditionalOutputs[${ci}]`, 'when 必須包含 field 與 equals');
+      }
+      if (!Array.isArray(conditional.outputs) || conditional.outputs.length === 0) {
+        err(`${at}.conditionalOutputs[${ci}]`, 'outputs 必須是非空陣列');
+      }
+    }
   }
 
   // --- shared vocabularies ---

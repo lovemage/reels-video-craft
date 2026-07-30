@@ -1,0 +1,51 @@
+{
+  "_": "嘴部錨點，單位為原圖像素。畫布座標由專案自行推導 —— 不要把畫布數字寫進這裡，每支片子都不同。",
+  "_tool": "python3 tools/calibrate.py measure <pose> --seed X,Y",
+  "_verification": "verified 的項目是在 chatgpt-atlas-shutdown-2026 實際用過、並以 1:1 合成圖目視確認過的。uncalibrated 的項目尚未量測 —— 要用先跑 calibrate.py，不要用鄰近姿勢的數字內插。",
+
+  "poses": {
+    "gestures/03-present-open-palm.png": {
+      "status": "verified",
+      "width": 1024, "height": 1536,
+      "lip_x": 557.5, "lip_y": 382.0, "lip_w": 85,
+      "scale_landmark_to_lip": 35
+    },
+    "gestures/04-explain-both-palms.png": {
+      "status": "verified",
+      "width": 1024, "height": 1536,
+      "lip_x": 510.5, "lip_y": 382.0, "lip_w": 77,
+      "scale_landmark_to_lip": 35
+    },
+    "gestures/06-thumbs-up.png": {
+      "status": "verified",
+      "width": 1086, "height": 1448,
+      "lip_x": 593.0, "lip_y": 312.1, "lip_w": 72,
+      "scale_landmark_to_lip": 35,
+      "note": "圖檔尺寸與其他 gesture 不同。以尺度地標對齊，不要以外框寬度對齊。"
+    },
+    "gestures/08-tech-demo.png": {
+      "status": "verified",
+      "width": 1024, "height": 1536,
+      "lip_x": 477.0, "lip_y": 409.0, "lip_w": 82,
+      "scale_landmark_to_lip": 36
+    },
+    "expressions/07-worried-concerned.png": {
+      "status": "verified",
+      "width": 1536, "height": 1024,
+      "lip_x": 794.5, "lip_y": 501.3, "lip_w": 111,
+      "scale_landmark_to_lip": 52
+    },
+
+    "gestures/01-point-left.png": { "status": "uncalibrated" },
+    "gestures/02-point-right.png": { "status": "uncalibrated" },
+    "gestures/05-thinking-chin.png": { "status": "uncalibrated" },
+    "gestures/07-important-tip.png": { "status": "uncalibrated" },
+    "expressions/01-neutral-attentive.png": { "status": "uncalibrated" },
+    "expressions/02-friendly-smile.png": { "status": "uncalibrated" },
+    "expressions/03-cheerful-laugh.png": { "status": "uncalibrated" },
+    "expressions/04-surprised.png": { "status": "uncalibrated" },
+    "expressions/05-puzzled-thinking.png": { "status": "uncalibrated" },
+    "expressions/06-serious-explaining.png": { "status": "uncalibrated" },
+    "expressions/08-confident-encouraging.png": { "status": "uncalibrated" }
+  }
+}

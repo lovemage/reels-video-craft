@@ -8,15 +8,17 @@ import {
   useVideoConfig,
 } from 'remotion';
 
-export type HighlightVariant = {color: string; glow: string};
+export type HighlightVariant = {color: string; glow: string; marker?: string};
 export type HighlightKeyword = {phrase: string; variant: number};
 export type HighlightMap = Record<number, HighlightKeyword[]>;
+// Legacy project-local translations. New projects should pass `englishCaptions`
+// so both language tracks use the @remotion/captions schema.
 export type EnglishLines = Record<number, string>;
 
 export const DEFAULT_VARIANTS: HighlightVariant[] = [
-  {color: '#f3d17a', glow: 'rgba(243, 209, 122, 0.7)'},
-  {color: '#a3d0bd', glow: 'rgba(163, 208, 189, 0.65)'},
-  {color: '#e6906f', glow: 'rgba(230, 144, 111, 0.65)'},
+  {color: '#f8d978', glow: 'rgba(248, 217, 120, 0.48)', marker: 'rgba(248, 217, 120, 0.3)'},
+  {color: '#a9dbc7', glow: 'rgba(169, 219, 199, 0.44)', marker: 'rgba(169, 219, 199, 0.28)'},
+  {color: '#f09a79', glow: 'rgba(240, 154, 121, 0.44)', marker: 'rgba(240, 154, 121, 0.28)'},
 ];
 
 const PLAIN_TEXT_COLOR = '#fffdf7';
@@ -78,15 +80,15 @@ const HighlightSpan: React.FC<{
   popFrame: number;
   frame: number;
 }> = ({text, variant, variants, popFrame, frame}) => {
-  const {color, glow} = variants[variant % variants.length];
+  const {color, glow, marker = 'transparent'} = variants[variant % variants.length];
 
-  const pop = interpolate(frame, [popFrame, popFrame + 4, popFrame + 12], [0.72, 1.2, 1], {
+  const pop = interpolate(frame, [popFrame, popFrame + 4, popFrame + 11], [0.92, 1.1, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.bezier(0.34, 1.56, 0.64, 1),
   });
 
-  const rise = interpolate(frame, [popFrame, popFrame + 8], [16, 0], {
+  const rise = interpolate(frame, [popFrame, popFrame + 8], [10, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -98,7 +100,10 @@ const HighlightSpan: React.FC<{
         display: 'inline-block',
         color,
         WebkitTextStroke: TEXT_STROKE,
-        textShadow: `0 0 26px ${glow}, ${TEXT_SHADOW}`,
+        padding: '0 4px',
+        margin: '0 1px',
+        boxShadow: `inset 0 -0.42em 0 ${marker}`,
+        textShadow: `0 0 18px ${glow}, ${TEXT_SHADOW}`,
         transform: `translateY(${frame < popFrame ? 0 : rise}px) scale(${frame < popFrame ? 1 : pop})`,
       }}
     >
@@ -117,7 +122,7 @@ const CaptionCard: React.FC<{
   const frame = useCurrentFrame();
   const zhText = trimTrailingPunctuation(caption.text);
   const enText = englishText ? trimTrailingPunctuation(englishText) : '';
-  const totalChars = Array.from(zhText).length;
+  const totalChars = Math.max(1, Array.from(zhText).length);
   const segments = buildSegments(zhText, keywords);
 
   const entranceOpacity = interpolate(frame, [0, 5], [0, 1], {
@@ -127,6 +132,16 @@ const CaptionCard: React.FC<{
   });
 
   const entranceTranslate = interpolate(frame, [0, 6], ['0px 12px', '0px 0px'], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+  });
+  const englishOpacity = interpolate(frame, [2, 7], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+  });
+  const englishTranslateY = interpolate(frame, [2, 7], [6, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
     easing: Easing.bezier(0.16, 1, 0.3, 1),
@@ -146,18 +161,18 @@ const CaptionCard: React.FC<{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 14,
+          gap: 10,
           opacity: entranceOpacity,
           translate: entranceTranslate,
         }}
       >
         <div
           style={{
-            maxWidth: 940,
-            fontSize: 56,
-            fontWeight: 700,
-            lineHeight: 1.5,
-            letterSpacing: 0.2,
+            maxWidth: 920,
+            fontSize: 60,
+            fontWeight: 800,
+            lineHeight: 1.35,
+            letterSpacing: 0,
             textAlign: 'center',
             color: PLAIN_TEXT_COLOR,
             WebkitTextStroke: TEXT_STROKE,
@@ -185,16 +200,19 @@ const CaptionCard: React.FC<{
         </div>
         {enText && (
           <div
+            lang="en"
             style={{
-              maxWidth: 860,
-              fontSize: 29,
-              fontWeight: 500,
-              lineHeight: 1.4,
-              letterSpacing: 0.1,
+              maxWidth: 900,
+              fontSize: 31,
+              fontWeight: 600,
+              lineHeight: 1.25,
+              letterSpacing: 0.15,
               textAlign: 'center',
-              color: 'rgba(255, 253, 247, 0.78)',
+              color: 'rgba(255, 253, 247, 0.88)',
               WebkitTextStroke: ENGLISH_STROKE,
               textShadow: ENGLISH_TEXT_SHADOW,
+              opacity: englishOpacity,
+              transform: `translateY(${englishTranslateY}px)`,
             }}
           >
             {enText}
@@ -246,8 +264,32 @@ export const computeHighlightFrames = (
 export type CaptionsOverlayProps = {
   captions: Caption[];
   highlightMap?: HighlightMap;
+  englishCaptions?: Caption[];
+  /** @deprecated Prefer englishCaptions with the @remotion/captions schema. */
   englishLines?: EnglishLines;
   variants?: HighlightVariant[];
+};
+
+export const validateBilingualCaptionAlignment = (
+  captions: Caption[],
+  englishCaptions: Caption[],
+): string[] => {
+  const issues: string[] = [];
+  if (captions.length !== englishCaptions.length) {
+    issues.push(`中英文字幕段數不同：${captions.length} vs ${englishCaptions.length}`);
+  }
+
+  captions.forEach((caption, index) => {
+    const english = englishCaptions[index];
+    if (!english) return;
+    if (caption.startMs !== english.startMs || caption.endMs !== english.endMs) {
+      issues.push(
+        `第 ${index + 1} 段時間碼不同：中文 ${caption.startMs}-${caption.endMs}ms，英文 ${english.startMs}-${english.endMs}ms`,
+      );
+    }
+  });
+
+  return issues;
 };
 
 // No background card — bold stroked text sits directly on the footage.
@@ -258,6 +300,7 @@ export type CaptionsOverlayProps = {
 export const CaptionsOverlay: React.FC<CaptionsOverlayProps> = ({
   captions,
   highlightMap = {},
+  englishCaptions = [],
   englishLines = {},
   variants = DEFAULT_VARIANTS,
 }) => {
@@ -279,7 +322,7 @@ export const CaptionsOverlay: React.FC<CaptionsOverlayProps> = ({
               caption={caption}
               durationInFrames={durationInFrames}
               keywords={highlightMap[index]}
-              englishText={englishLines[index]}
+              englishText={englishCaptions[index]?.text ?? englishLines[index]}
               variants={variants}
             />
           </Sequence>

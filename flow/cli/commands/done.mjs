@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { projectsRoot, planFor, t } from '../lib/registry.mjs';
+import { projectsRoot, planFor, stageOutputsFor, t } from '../lib/registry.mjs';
 import { verifyOutputs } from '../lib/artifacts.mjs';
 import { grey, green, red, yellow, bold } from '../lib/ui.mjs';
 
@@ -25,7 +25,7 @@ export function run(args) {
   }
   const brief = JSON.parse(readFileSync(briefPath, 'utf8'));
 
-  const { plan } = planFor(brief.method, { input: brief.input });
+  const { plan } = planFor(brief.method, { input: brief.input, voice: brief.voice ?? undefined });
   const entry = plan.find((p) => p.stage.id === stageId);
   if (!entry) {
     console.error(red(`未知的階段：${stageId}`));
@@ -58,7 +58,7 @@ export function run(args) {
   }
 
   // Verify the stage actually produced what it claims to produce.
-  const outputs = stage.outputs ?? [];
+  const outputs = stageOutputsFor(stage, brief);
   const verified = verifyOutputs(projectDir, outputs, brief);
   const missing = verified.filter((v) => !v.ok);
   if (missing.length && !args.force) {

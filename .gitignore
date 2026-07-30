@@ -39,6 +39,14 @@ WORKSPACE.zh-TW.md
 *.aac
 *.flac
 
+# === 付費 API 的中間工作檔（任何位置）===
+**/.lipsync-work/
+**/.tts-work/
+
+# === kit 的可衍生工作檔（原始未去背稿與 contact sheet，不進版控）===
+shared/explainer-avatar-kit/raw/
+shared/explainer-avatar-kit/boards/
+
 # === 暫存 ===
 .DS_Store
 *.log

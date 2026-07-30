@@ -15,8 +15,8 @@
       "phase": "plan",
       "name": { "zh-TW": "需求確認", "en": "Intake" },
       "summary": {
-        "zh-TW": "逐題確認輸入素材、觀看情境／比例、製作方式、配音、字幕、BGM 與片長，產出 brief.json。",
-        "en": "Confirm input material, viewing context/aspect, method, voice, captions, BGM and target length; write brief.json."
+        "zh-TW": "逐題確認輸入素材、觀看情境／比例、製作方式、配音、字幕、Avatar、BGM 與片長，產出 brief.json。",
+        "en": "Confirm input material, viewing context/aspect, method, voice, captions, presenter avatar, BGM and target length; write brief.json."
       },
       "gate": "human",
       "gateNote": {
@@ -40,6 +40,34 @@
         "zh-TW": [
           "原始檔一律命名 voiceover-raw.*，永不覆寫。",
           "影片來源同時保留 voiceover-raw.mp4（供懸浮頭像使用）與抽出的 voiceover-raw.wav。"
+        ]
+      }
+    },
+    {
+      "id": "tts-gen",
+      "phase": "prep",
+      "name": { "zh-TW": "TTS 配音生成", "en": "TTS Generation" },
+      "summary": {
+        "zh-TW": "配音選 AI TTS 時，依 brief 記錄的模型與聲線把逐字稿合成旁白。先出短試聽片段取得確認，再合成完整旁白。這一階段是否要跑由配音答案決定，不由製作方式決定。",
+        "en": "When the voice route is AI TTS, synthesise the narration from the script using the model and voice recorded in the brief. Ship a short sample for approval before synthesising the full narration. Whether this stage runs is decided by the voice answer, not the method."
+      },
+      "gate": "human",
+      "gateNote": {
+        "zh-TW": "涉及付費 API。先用 --sample 合成前一兩句試聽，確認聲線、語速與斷句後才合成完整旁白。換模型或聲線都要重新試聽。",
+        "en": "Paid API. Synthesise a one-to-two-sentence sample first; confirm voice, pacing and phrasing before the full run. Re-sample after any model or voice change."
+      },
+      "inputs": ["SCRIPT.zh-TW.md"],
+      "outputs": ["public/voiceover-raw.wav", "public/voiceover-edited.wav", "public/voice/segments/generations.json"],
+      "command": "video-flow tts <project> --sample",
+      "rules": {
+        "zh-TW": [
+          "TTS 模型與聲線以 brief.json 的 ttsModel／ttsVoice 為準，不得沿用前一支影片的設定。",
+          "API key 只能從 .env 讀取（OpenRouter 使用 OPENROUTER_API_KEY；fal.ai 使用 FAL_KEY），不得寫入程式、日誌或回覆。",
+          "fal.ai Qwen 自訂聲音先用已確認的 Voicebox ZIP／參考音檔建立 speaker embedding；只生成短試音取得確認後，才能合成完整旁白。",
+          "逐段合成後串接成 voiceover-raw.wav；TTS 合成音沒有贅詞與長停頓，voiceover-edited.wav 直接由 raw 衍生，不跑 auto-editor。",
+          "後續所有時間計算仍一律以 voiceover-edited.wav 為準。",
+          "數字、英文縮寫與專有名詞先在逐字稿改寫成唸法（例如「BAP」→「B A P」），不要事後剪音。",
+          "每段的模型、聲線、輸入文字與 generation id 記錄在 generations.json，供重跑與對帳。"
         ]
       }
     },
@@ -92,11 +120,19 @@
       "gate": "human",
       "inputs": ["public/captions/captions-draft.json"],
       "outputs": ["public/captions/captions.json"],
+      "conditionalOutputs": [
+        {
+          "when": { "field": "captionLanguages", "equals": "zh-en" },
+          "outputs": ["public/captions/captions.en.json"]
+        }
+      ],
       "rules": {
         "zh-TW": [
           "只清理字幕呈現，不得改寫原意或杜撰內容。",
           "字幕刪字不等於刪語音；不得因為校對而剪掉音訊。",
-          "格式須符合 @remotion/captions：text、startMs、endMs、timestampMs、confidence。"
+          "格式須符合 @remotion/captions：text、startMs、endMs、timestampMs、confidence。",
+          "brief.captionLanguages 為 zh-en 時，另產出 public/captions/captions.en.json；逐段沿用中文字幕 startMs／endMs，不得另算一套時間軸。",
+          "雙語字幕固定中文在上、英文在下。中文承擔高光與主要動態；英文只作語意翻譯，不逐字彈跳、不與中文搶焦點。"
         ]
       }
     },
@@ -179,7 +215,7 @@
       "phase": "build",
       "name": { "zh-TW": "組裝", "en": "Assemble" },
       "summary": {
-        "zh-TW": "在 Remotion 把畫面軌、旁白、字幕、吉祥物／頭像與 BGM 疊成最終時間軸。",
+        "zh-TW": "在 Remotion 把畫面軌、旁白、字幕、主講人 Avatar、吉祥物與 BGM 疊成最終時間軸。",
         "en": "Layer the visual track, narration, captions, mascot/avatar and BGM into the final timeline in Remotion."
       },
       "gate": "none",
@@ -188,7 +224,12 @@
         "zh-TW": [
           "所有動畫用 useCurrentFrame()／interpolate()／spring()，不使用 CSS transition／animation。",
           "旁白是主聲道；BGM 約 8–15%，首秒淡入、末兩秒淡出。",
-          "掛載順序：畫面軌 → 懸浮頭像 → 吉祥物 → 字幕（吉祥物在字幕之前才不會被蓋住）。"
+          "掛載順序：畫面軌 → 主講人 Avatar → 吉祥物 → 字幕（吉祥物在字幕之前才不會被蓋住）。",
+          "雙語字幕使用中文主層＋英文副層：中文高光、英文弱化；兩層視為同一字幕群組共同進出，禁止分離漂移。",
+          "英文字幕建議為中文字級的 48–58%，與中文間距 8–14 px；直式畫面最多兩行英文，完整解析度 still 必須檢查溢位與安全區。",
+          "二次元 Avatar 不得隨機換表情或手勢：先以中性待機為基底，只在語意轉折、提問、提醒、結論與明確指向等 beat 切換，並由旁白音量驅動嘴型。",
+          "同一個表情或手勢至少停留 1.5 秒；兩次大動作至少間隔 2 秒。切換用 6–10 幀淡入、位移或縮放，不可每句話都跳動。",
+          "AI lip-sync 端點先以 3–5 秒片段測試身份、嘴型、延遲與授權，取得人工確認後才可跑完整旁白。API key 只能從 brief 記錄的 .env 變數名稱讀取。"
         ]
       }
     },
@@ -218,7 +259,8 @@
         "zh-TW": [
           "音訊峰值必須低於 0 dB。",
           "影片長度須覆蓋完整旁白，不截尾音。",
-          "每個交付比例都要獨立做安全區與可讀性 QA，通過一個比例不代表其他比例自動通過。"
+          "每個交付比例都要獨立做安全區與可讀性 QA，通過一個比例不代表其他比例自動通過。",
+          "brief.captionLanguages 為 zh-en 時，人工檢查每段中英文語意一致、共同進出、英文位於中文正下方，且兩層均未超出安全區。"
         ]
       }
     },

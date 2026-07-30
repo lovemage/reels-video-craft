@@ -1,0 +1,115 @@
+{
+  "id": "tech-guy-explainer-avatar",
+  "version": 1,
+  "referenceBoard": "boards/tech-guy-avatar-board-v1.png",
+  "expressions": [
+    {
+      "id": "neutral-attentive",
+      "file": "expressions/01-neutral-attentive.png"
+    },
+    {
+      "id": "friendly-smile",
+      "file": "expressions/02-friendly-smile.png"
+    },
+    {
+      "id": "cheerful-laugh",
+      "file": "expressions/03-cheerful-laugh.png"
+    },
+    {
+      "id": "surprised",
+      "file": "expressions/04-surprised.png"
+    },
+    {
+      "id": "puzzled-thinking",
+      "file": "expressions/05-puzzled-thinking.png"
+    },
+    {
+      "id": "serious-explaining",
+      "file": "expressions/06-serious-explaining.png"
+    },
+    {
+      "id": "worried-concerned",
+      "file": "expressions/07-worried-concerned.png"
+    },
+    {
+      "id": "confident-encouraging",
+      "file": "expressions/08-confident-encouraging.png"
+    }
+  ],
+  "mouths": [
+    {
+      "id": "closed-rest",
+      "file": "mouths/01-closed-rest.png"
+    },
+    {
+      "id": "small-open",
+      "file": "mouths/02-small-open.png"
+    },
+    {
+      "id": "medium-open",
+      "file": "mouths/03-medium-open.png"
+    },
+    {
+      "id": "wide-open",
+      "file": "mouths/04-wide-open.png"
+    },
+    {
+      "id": "rounded-o",
+      "file": "mouths/05-rounded-o.png"
+    },
+    {
+      "id": "smiling-speak",
+      "file": "mouths/06-smiling-speak.png"
+    }
+  ],
+  "gestures": [
+    {
+      "id": "point-left",
+      "file": "gestures/01-point-left.png"
+    },
+    {
+      "id": "point-right",
+      "file": "gestures/02-point-right.png"
+    },
+    {
+      "id": "present-open-palm",
+      "file": "gestures/03-present-open-palm.png"
+    },
+    {
+      "id": "explain-both-palms",
+      "file": "gestures/04-explain-both-palms.png"
+    },
+    {
+      "id": "thinking-chin",
+      "file": "gestures/05-thinking-chin.png"
+    },
+    {
+      "id": "thumbs-up",
+      "file": "gestures/06-thumbs-up.png"
+    },
+    {
+      "id": "important-tip",
+      "file": "gestures/07-important-tip.png"
+    },
+    {
+      "id": "tech-demo",
+      "file": "gestures/08-tech-demo.png"
+    }
+  ],
+  "rigs": [
+    {
+      "id": "hyperframes-presenter",
+      "path": "rigs/hyperframes-presenter/rig.json",
+      "anchors": "rigs/hyperframes-presenter/anchors.json",
+      "doc": "rigs/hyperframes-presenter/README.zh-TW.md",
+      "for": "flow avatarMode = anime-presenter",
+      "summary": "雙景別 + 線稿嘴型 + 音量驅動。已算圖驗證。",
+      "note": "此 rig 不使用 mouths/ 素材，原因見 rig.json 的 doNotUseKitMouthsWhy。"
+    }
+  ],
+  "tools": {
+    "calibrate": "tools/calibrate.py — 半自動量測嘴部錨點（grid / measure / proof）",
+    "mouthTrack": "tools/mouth_track.py — 旁白 RMS → 嘴型狀態軌",
+    "test": "tools/test_calibrate.py — 保護已目視核可的錨點基準值"
+  }
+}

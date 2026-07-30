@@ -1,0 +1,93 @@
+{
+  "id": "hyperframes-presenter",
+  "version": 1,
+  "character": "tech-guy-explainer-avatar",
+  "summary": "二次元主講人 rig：雙景別、線稿嘴型、音量驅動。在 chatgpt-atlas-shutdown-2026 完整跑過並算圖驗證。",
+  "appliesTo": "flow intake avatarMode = anime-presenter（路線 B）",
+
+  "shots": {
+    "stand": {
+      "source": "gestures/",
+      "note": "中景，預設。畫面上是說明者。",
+      "mouthProfile": "stand"
+    },
+    "close": {
+      "source": "expressions/",
+      "note": "特寫。一支片子最多用一次，用來標記語氣轉折；不是可隨意切換的第二機位。",
+      "mouthProfile": "close"
+    }
+  },
+
+  "rigCompatibility": {
+    "crossRigTransition": "hard-cut-only",
+    "crossRigCrossfade": "forbidden",
+    "cutPoint": "scene-boundary-only",
+    "sameRigTransition": "6-10 frame crossfade, 2-4% scale, 8-16px offset",
+    "stacking": "forbidden",
+    "why": "gestures/ 是 1024x1536 直式半身，expressions/ 是 1536x1024 橫式胸像。兩者裁切與頭部尺寸差約 1.5 倍，交叉淡入會拍出頭部膨脹又縮回的 morph 感。素材 README 亦明訂表情與手勢擇一顯示、不得疊加。"
+  },
+
+  "scale": {
+    "landmark": "scale_landmark_to_lip",
+    "landmarkNote": "由 tools/calibrate.py measure 量出。經驗地標（推測為鼻基陰影），非解剖定義；取其作為頭部尺度比例的依據，是因為實測在同一 rig 內恆定。教科書做法是用瞳距，但這批素材的眼鏡框與頭髮在門檻法下分不開。",
+    "gesturesMean": 35.25,
+    "gesturesSpread": "35 / 35 / 35 / 36 —— 四張 gesture 的頭在原圖中尺寸相同",
+    "expressionsSample": 52,
+    "rigRatio": 1.475,
+    "boundingBoxFitIsWrong": "06-thumbs-up.png 是 1086x1448，其餘 gesture 是 1024x1536。套同一個框寬會讓它的頭變小 —— 必須以尺度地標對齊，不是以外框。",
+    "closeUpShotSizeFormula": "scale_close = scale_stand * targetHeadRatio / 1.475",
+    "targetHeadRatioGuidance": "1.9-2.0。低於約 1.5 在剪接上會被讀成跳接（jump cut），而不是刻意的推進。"
+  },
+
+  "mouth": {
+    "doNotUseKitMouths": true,
+    "doNotUseKitMouthsWhy": "mouths/ 的六張 PNG 是寫實光澤唇，與角色的漫畫線稿臉不同畫風，在特寫下明顯是外貼物；且角色原圖已畫了閉合的嘴，overlay 蓋不掉會變成兩張嘴。",
+    "states": ["closed", "small", "medium"],
+    "closedIsNoOverlay": "閉嘴不畫任何東西，直接露出素材原生的嘴。這同時避開了補膚色補丁的問題。",
+    "construction": {
+      "anchor": "素材原本的上唇線（anchors.json 的 lip_x / lip_y）",
+      "cavity": "橢圓，中心 (lip_x, lip_y + 0.20H)，半徑 (W/2, H/2) —— 由上唇線往下開，與真實嘴部動作一致",
+      "teeth": "橢圓，中心 (lip_x, lip_y - 0.10H)，半徑 (0.34W, 0.10H)，僅 medium 使用",
+      "unitsAreSourcePixels": true
+    },
+    "geometry": {
+      "stand": {
+        "small": { "widthRatio": 0.70, "heightRatio": 0.15, "teeth": false },
+        "medium": { "widthRatio": 0.79, "heightRatio": 0.24, "teeth": true }
+      },
+      "close": {
+        "small": { "widthRatio": 0.81, "heightRatio": 0.11, "teeth": false },
+        "medium": { "widthRatio": 0.78, "heightRatio": 0.23, "teeth": true }
+      }
+    },
+    "ratiosAreOf": "lip_w（該姿勢實測的唇線寬）",
+    "colors": { "cavity": "#241A1A", "teeth": "#E6DBD2" },
+    "minimumVisibleHeight": {
+      "canvasPx": 4,
+      "note": "stand 的 small 原本設 0.08 倍唇寬，在 430px 寬的角色上只有 2.8px 高 —— 與閉嘴在畫面上無法區分，等於讓 43% 的旁白時間沒有嘴部動作。收下限前務必用 calibrate.py proof 在 1:1 下確認。"
+    },
+    "onlyThreeStatesEvenInCloseUp": "特寫也只用三態。齒列細節在這個畫風下只會加深外貼感。"
+  },
+
+  "drive": {
+    "source": "voiceover 的 RMS 音量",
+    "tool": "tools/mouth_track.py",
+    "silenceForcesClosed": true,
+    "spikeFilter": "1 幀狀態尖峰會被吸收，避免閃爍"
+  },
+
+  "grounding": {
+    "use": "一條 3px 結構線，位於角色底線",
+    "doNotUse": "角色背後的色板",
+    "why": "色板在實際畫面上讀成一塊左右緣懸空的浮動方框。底線同時能與字幕線一起把中間的淨空隔離帶夾出來。"
+  },
+
+  "placementRules": [
+    "stand 各姿勢以臉部中心對齊同一個 x，不要靠右對齊 —— 各手勢的手臂伸展量不同，靠右對齊會讓頭在幕切點橫移約 59px，對齊臉只跳 12px。",
+    "所有景別共用同一條底線。",
+    "放大動畫的 transform-origin 必須是 bottom center，只能往上長。",
+    "close 的出血以角色的 alpha bbox 邊緣計算，不是圖檔邊緣 —— expressions/ 左右都有透明邊。"
+  ],
+
+  "referenceImplementation": "production/chatgpt-atlas-shutdown-2026/hyperframes/index.html"
+}

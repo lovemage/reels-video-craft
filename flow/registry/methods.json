@@ -209,6 +209,7 @@
       "stages": {
         "intake": "required",
         "source-prep": "required",
+        "tts-gen": "optional",
         "speech-edit": "required",
         "transcribe": "required",
         "caption-correct": "required",
@@ -314,6 +315,7 @@
       "stages": {
         "intake": "required",
         "source-prep": "required",
+        "tts-gen": "optional",
         "speech-edit": "required",
         "transcribe": "required",
         "caption-correct": "required",
@@ -420,6 +422,7 @@
       "stages": {
         "intake": "required",
         "source-prep": "required",
+        "tts-gen": "skip",
         "speech-edit": "skip",
         "transcribe": "skip",
         "caption-correct": "skip",
@@ -464,8 +467,8 @@
         "en": "Hand-drawn Diary + Floating Avatar"
       },
       "tagline": {
-        "zh-TW": "把故事轉成「文字 → 黑白畫稿 → 彩色插畫」的手繪動畫，右上角放真人懸浮頭像。",
-        "en": "Turn a story into text → B/W sketch → coloured illustration hand-drawn animation, with a live-action floating avatar."
+        "zh-TW": "把故事拆進最多兩張 3×3 手繪母圖，鏡頭在格與格之間平移推進，右上角放真人懸浮頭像。",
+        "en": "Pack the story into up to two 3×3 hand-drawn master grids, panning panel to panel, with a live-action floating avatar."
       },
       "bestFor": {
         "zh-TW": [
@@ -484,7 +487,8 @@
         "zh-TW": [
           "步驟最多：需故事文本整理、時間點比對校正、額外裝字幕與吉祥物元件",
           "禁止自行編寫美術風格提示詞，也不得沿用其他專案的視覺系統",
-          "禁止直接沿用技能內建的 text → bw_full → color 揭示動畫與手寫字幕（會跟本專案字幕／頭像疊在一起）"
+          "禁止直接沿用技能內建的手寫字幕（會跟本專案字幕／頭像疊在一起）",
+          "畫面固定使用最多兩張 3×3 母圖；分鏡超過 18 格時必須先合併內容，不得增加母圖"
         ]
       },
       "visualTrack": "generated",
@@ -529,12 +533,13 @@
       "cost": {
         "model": "per-image",
         "note": {
-          "zh-TW": "每幕一張圖，由 Codex Image2 生成。plan 階段免費不生圖。"
+          "zh-TW": "每支影片最多生成兩張 3×3 母圖，由 Codex Image2 生成；同一母圖承載最多九個連續動作。plan 階段免費不生圖。"
         }
       },
       "stages": {
         "intake": "required",
         "source-prep": "required",
+        "tts-gen": "optional",
         "speech-edit": "required",
         "transcribe": "required",
         "caption-correct": "required",
@@ -552,7 +557,7 @@
       "stageOverrides": {
         "storyboard": {
           "note": {
-            "zh-TW": "由技能腳本以 --mode plan 自動產出（免費、不生圖）。先把校正後逐字稿改寫成故事文本，長句要先斷句——技能依標點自動分句，句子太長會在中間硬切甚至切斷詞。"
+            "zh-TW": "由技能腳本以 `--mode plan --grid 3x3 --max-grid-images 2 --text-mode font` 自動產出（免費、不生圖）。分鏡按朗讀順序裝入母圖：每張固定 3×3、由左到右再由上到下，最多兩張共 18 格；超過 18 格必須先合併故事節拍。不得改回一幕一張圖。"
           }
         },
         "visual-design": {
@@ -562,17 +567,49 @@
         },
         "asset-gen": {
           "note": {
-            "zh-TW": "prompt 在 prompts/generated/codex/<batch>/，交給 Codex Image2 生成；助手只需準備 prompt。全部生成後跑 --mode import（本地衍生黑白稿並對齊畫布）與 --mode render。"
+            "zh-TW": "prompt 在 prompts/generated/codex/<batch>/，每張 3×3 母圖只建立一個 Image2 job；整支影片除角色參考圖外最多兩個 grid job。先做第一張母圖／contact sheet 取得確認，才可生成第二張。全部生成後跑 --mode import，本地只衍生對齊的黑白母圖，不再逐格生圖。"
           }
         },
         "script-align": {
           "note": {
-            "zh-TW": "本方式的關鍵步驟。技能估的 duration_sec 只是粗略節奏，必須用每段 narration 文字比對 captions.json 真實時間戳（字元級 fuzzy match + 單調游標），算出真正的 from/to frame。漏掉這步，畫面切換會跟語音完全對不上。"
+            "zh-TW": "本方式的關鍵步驟。技能估的 duration_sec 只是粗略節奏，必須用每格 narration 文字比對 captions.json 真實時間戳（字元級 fuzzy match + 單調游標），算出真正的 from/to frame；segments.ts 還必須保留 masterId、panelIndex、row、column，讓畫面依序從第 1 格平移到第 2 格。"
+          }
+        },
+        "tts-gen": {
+          "rules": {
+            "zh-TW": [
+              "TTS 模型與聲線以 brief.json 的 ttsModel／ttsVoice 為準，不得沿用前一支影片的設定。",
+              "API key 只能從 .env 讀取（OpenRouter 使用 OPENROUTER_API_KEY；fal.ai 使用 FAL_KEY），不得寫入程式、日誌或回覆。",
+              "fal.ai Qwen 自訂聲音先用已確認的 Voicebox ZIP／參考音檔建立 speaker embedding；只生成短試音取得確認後，才能合成完整旁白。",
+              "逐段合成後串接成 voiceover-raw.wav；TTS 合成音沒有贅詞與長停頓，voiceover-edited.wav 直接由 raw 衍生，不跑 auto-editor。",
+              "後續所有時間計算仍一律以 voiceover-edited.wav 為準——timeline-lock、script-align、字幕與 lip sync 全部以它計時。",
+              "數字、英文縮寫與專有名詞先在逐字稿改寫成唸法（例如「BAP」→「B A P」），不要事後剪音。",
+              "每段的模型、聲線、輸入文字與 generation id 記錄在 generations.json，供重跑與對帳。",
+              "TTS 內容的下游應用：captions.json 的逐段 startMs／endMs 是三個消費者的共同來源——底部雙語字幕、中央重點字卡的浮現時點、script-align 的幕邊界；不得為任何一個消費者另建時間軸。",
+              "lip sync 的音訊輸入不重新合成——直接從 voiceover-edited.wav 依 Avatar 視窗起迄切段（ffmpeg -ss／-t），口型才會與成片旁白完全一致。"
+            ]
           }
         },
         "assemble": {
           "note": {
-            "zh-TW": "用 <Img> 逐段讀 storyboard/stills/NN.png 包進 Sequence，加慢速 Ken Burns。真人影片當右上角圓形頭像靜音播放，旁白走獨立 <Audio>。字幕與吉祥物用 shared/subtitle-mascot-kit。"
+            "zh-TW": "畫面軌只掛載最多兩張 3×3 母圖，依 segments.ts 的 panel 座標做 seek-safe 平移／縮放，按列優先順序由第 1 格移到第 2 格；不得把九格裁成九個生成資產，也不得新增第三張母圖。跨母圖時才切換圖片。旁白句間停頓留在當前格自然定格。Overlay 由下而上：Header（雙語常駐）→ 中央重點字卡 → 底部雙語字幕，全部文字使用繁體全字集手寫楷。旁白與 BGM 各走獨立 <Audio>，BGM 音量壓在旁白之下（約 0.06）、首秒淡入、末兩秒淡出。"
+          },
+          "rules": {
+            "zh-TW": [
+              "所有動畫用 useCurrentFrame()／interpolate()／spring()，不使用 CSS transition／animation。",
+              "M4 畫面資產固定最多兩張母圖，每張固定 3×3；同一母圖內只改變攝影機的 row／column 位移，不把各格另存成九張圖片。",
+              "panel 順序固定為列優先（左→右、上→下），跨格移動必須由 frame 計算且可安全 seek；不足九格的剩餘格保持空白，不得補寫故事。",
+              "黑白母圖與彩色母圖共用同一組 panel 座標。格內是否做黑白→彩色揭示由分鏡節奏決定；不使用時黑白母圖僅作備援，不得為此另外生成付費資產。",
+              "旁白是主聲道；BGM 壓在旁白之下（本方式定案約 6%），首秒淡入、末兩秒淡出。",
+              "掛載順序：畫面軌 → 主講人 Avatar → 中央重點字卡 → Header → 字幕（吉祥物如有，放在字幕之前）。",
+              "雙語字幕使用中文主層＋英文副層：中文高光、英文弱化；兩層視為同一字幕群組共同進出，禁止分離漂移。",
+              "英文字幕建議為中文字級的 48–58%，與中文間距 8–14 px；直式畫面最多兩行英文，完整解析度 still 必須檢查溢位與安全區。",
+              "Overlay 文字一律使用繁體全字集手寫字體（如霞鶩文楷 TC）——簡體字集手寫字體缺字會回退成標準字體，造成風格混雜。",
+              "Avatar 不常駐：顯示視窗由組裝端單一設定檔驅動（視窗清單 {id, startMs, endMs, src}，如 src/data/avatar.ts），數量與長度不限；場景元素與視窗重疊時讓位，不寫死任何視窗。",
+              "Lip sync 按需逐段生成，不做全長：先 `video-flow lipsync <project> --sample --seconds 4` 產出 3–5 秒測試片檢查身份、嘴型與延遲，取得人工確認後，再對每個視窗跑 `--segment --from <起點秒> --seconds <長度> --label <視窗id>`；輸出 avatar-<id>.mp4 必須與視窗設定的起迄毫秒、檔名一一對應。",
+              "Avatar 外框與素材同比例（例如 720×1280 素材配 9:16 圓角墨線框），contain 放入——不裁切、不變形、不強制填滿。",
+              "FAL_KEY 只能從 brief 記錄的 .env 變數名稱讀取；每次 lip sync 生成記錄在 public/avatar/lipsync-runs.json 供重跑與對帳。"
+            ]
           }
         }
       },
@@ -650,6 +687,7 @@
       "stages": {
         "intake": "required",
         "source-prep": "required",
+        "tts-gen": "optional",
         "speech-edit": "required",
         "transcribe": "required",
         "caption-correct": "required",
@@ -763,6 +801,7 @@
       "stages": {
         "intake": "required",
         "source-prep": "required",
+        "tts-gen": "optional",
         "speech-edit": "required",
         "transcribe": "required",
         "caption-correct": "required",
@@ -871,6 +910,7 @@
       "stages": {
         "intake": "required",
         "source-prep": "required",
+        "tts-gen": "optional",
         "speech-edit": "required",
         "transcribe": "required",
         "caption-correct": "required",
@@ -968,6 +1008,7 @@
       "stages": {
         "intake": "required",
         "source-prep": "required",
+        "tts-gen": "optional",
         "speech-edit": "required",
         "transcribe": "required",
         "caption-correct": "required",

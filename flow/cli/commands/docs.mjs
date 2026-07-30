@@ -55,6 +55,7 @@ export function run(args) {
   out.push(`- **需要寫分鏡**：${need('storyboard')}　·　選用：${need('storyboard', 'optional')}　·　不需要：${skip('storyboard')}`);
   out.push(`- **需要先對齊口播時間**：${need('script-align')}　·　不需要：${skip('script-align')}`);
   out.push(`- **需要先剪掉口播多餘段落（auto-editor）**：${need('speech-edit')}　·　不需要：${skip('speech-edit')}`);
+  out.push(`- **配音選 AI TTS 時**：改跑 TTS 配音生成（\`tts-gen\`），並跳過 auto-editor 口播剪輯——合成音沒有贅詞與長停頓可剪。`);
   out.push(`- **需要呼叫付費生成 API**：${need('asset-gen')}　·　不需要：${skip('asset-gen')}`);
   out.push(`- **視覺風格由上游技能鎖定、不可自訂**：${need('visual-design', 'locked')}`);
   out.push('');
@@ -145,6 +146,11 @@ export function run(args) {
       } else {
         const gate = p.stage.gate === 'human' ? ' ⏸' : '';
         out.push(`- ${MARK[p.status]} **${t(p.stage.name)}**${gate}${p.note ? ` — ${p.note}` : ''}`);
+        // 方式專屬的覆寫規則要露出在文件裡（例如 lip sync 的調用方式、TTS 內容的應用方法），
+        // 不能只活在 plan --json。只列該方式自己覆寫的規則，共用規則看「階段定義」。
+        for (const r of m.stageOverrides?.[p.stage.id]?.rules?.['zh-TW'] ?? []) {
+          out.push(`  - 規則：${r}`);
+        }
       }
     }
     out.push('');
@@ -160,6 +166,11 @@ export function run(args) {
     out.push(`${q.order}. **${t(q.prompt)}** \`${q.id}\``);
     if (q.note) out.push(`   - ${t(q.note)}`);
     if (q.skipIf?.stageSkipped) out.push(`   - 若該方式不跑 \`${q.skipIf.stageSkipped}\` 階段則跳過`);
+    if (q.skipIf?.answerNot) {
+      const [key, needed] = Object.entries(q.skipIf.answerNot)[0];
+      const accepted = Array.isArray(needed) ? needed : [needed];
+      out.push(`   - 只在 \`${key}\` 選 ${accepted.map((v) => `\`${v}\``).join('／')} 時才會詢問`);
+    }
     for (const o of q.options ?? []) {
       out.push(`   - ${t(o.name)}${t(o.note) ? ` — ${t(o.note)}` : ''}`);
     }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Intake 問答定義。順序有意義：先問輸入與觀看情境，才能用它們過濾出可行的製作方式。沒有任何一題有預設值——前一支影片的設定不能當這一支的預設。",
+  "description": "Intake 問答定義。順序有意義：先問輸入與觀看情境，才能用它們過濾出可行的製作方式。沒有任何一題有預設值——前一支影片的設定不能當這一支的預設。Avatar 是主講人，mascot 是可選陪伴角色，兩者不得混為一題。",
   "rules": {
     "zh-TW": [
       "逐題等待明確答案，不得替未回答的題目假設預設值。",
@@ -78,15 +78,88 @@
           "id": "designed",
           "name": { "zh-TW": "設計高光字幕", "en": "Designed highlight captions" },
           "note": { "zh-TW": "必須沿用或建立本專案已確認的字型、色彩、描邊、版位與高光邏輯。沒有既有設計時，先提出字幕視覺稿並取得確認才可實作。不得以共用 kit、預設 TikTok 字幕或一般底卡字幕冒充。" }
+        },
+        {
+          "id": "handwritten-highlight",
+          "name": { "zh-TW": "手寫蠟筆高光字幕（含中央重點字卡）", "en": "Handwritten crayon highlight captions (with centre keyword cards)" },
+          "note": { "zh-TW": "ai-cognitive-debt-ep01 定案樣式：底部中文主字幕用繁體全字集手寫楷（霞鶩文楷 TC）＋白紙光暈，關鍵詞加低飽和蠟筆 marker 高光，入場做一次輕微 pop；英文副字幕同字體、弱化、共用時間碼。畫面上方僅保留中央重點字卡（蠟筆色塊＋墨線手繪框＋白字墨邊），與字幕樣式明確區隔，不重複字幕全文。禁用簡體字集手寫字體——繁體缺字會回退成標準字體造成風格混雜。" }
+        }
+      ]
+    },
+    {
+      "id": "captionLanguages",
+      "order": 7,
+      "type": "single",
+      "prompt": { "zh-TW": "字幕要使用哪一種語言層級？", "en": "Which caption language hierarchy?" },
+      "note": { "zh-TW": "中英雙語時，中文是高光主字幕，英文固定在正下方作次字幕；兩者使用相同時間碼，不能各自漂移。" },
+      "skipIf": { "stageSkipped": "caption-correct" },
+      "options": [
+        {
+          "id": "zh-en",
+          "name": { "zh-TW": "中文主字幕＋英文副字幕", "en": "Chinese primary + English secondary" },
+          "note": { "zh-TW": "中文承擔高光與主要動態；英文較小、較弱、最多兩行，不逐字彈跳。" }
+        },
+        {
+          "id": "zh-only",
+          "name": { "zh-TW": "僅中文字幕", "en": "Chinese only" },
+          "note": { "zh-TW": "只輸出 captions.json，不建立英文字幕層。" }
+        },
+        {
+          "id": "custom",
+          "name": { "zh-TW": "其他語言組合", "en": "Other language pairing" },
+          "followUp": [
+            { "id": "captionLanguageSpec", "type": "text", "prompt": { "zh-TW": "請寫主字幕與副字幕語言，例如「日文主／英文副」" } }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "avatarMode",
+      "order": 8,
+      "type": "single",
+      "prompt": { "zh-TW": "主講人 Avatar 要使用哪一種方式？", "en": "Which presenter avatar route?" },
+      "note": { "zh-TW": "Avatar 是負責說明內容的主講人，不是字幕旁的吉祥物。每支影片都要重新確認，不能沿用上一支。" },
+      "options": [
+        {
+          "id": "live-video",
+          "name": { "zh-TW": "A. 上傳真人影片", "en": "A. User-supplied live-action presenter video" },
+          "note": { "zh-TW": "保留真人臉部影片作為懸浮頭像或主講畫面；音訊仍以 voiceover-edited.* 為時間軸基準。" },
+          "followUp": [
+            { "id": "avatarSource", "type": "text", "prompt": { "zh-TW": "真人 Avatar 影片的檔名或專案內路徑" } }
+          ]
+        },
+        {
+          "id": "anime-presenter",
+          "name": { "zh-TW": "B. 二次元人物介紹", "en": "B. Reusable 2D anime presenter" },
+          "note": { "zh-TW": "使用已核准的表情、嘴型與手勢素材；依旁白語意與音量驅動，不得隨機換圖。" },
+          "followUp": [
+            { "id": "avatarAsset", "type": "text", "prompt": { "zh-TW": "二次元人物素材包路徑或 ID（例如 shared/explainer-avatar-kit）" } }
+          ]
+        },
+        {
+          "id": "ai-lipsync",
+          "name": { "zh-TW": "C. VEED／Lip-sync AI 端點", "en": "C. VEED or lip-sync AI endpoint" },
+          "note": { "zh-TW": "呼叫外部端點產生嘴型影片。先做短片段測試並取得確認，再跑完整旁白；API key 只能從 .env 讀取。" },
+          "followUp": [
+            { "id": "avatarSource", "type": "text", "prompt": { "zh-TW": "要進行 lip-sync 的真人 Avatar 影片檔名或專案內路徑" } },
+            { "id": "avatarProvider", "type": "text", "prompt": { "zh-TW": "服務名稱／provider（例如 VEED 或指定 lip-sync 服務）" } },
+            { "id": "avatarEndpointEnv", "type": "text", "prompt": { "zh-TW": "端點 URL 的 .env 變數名稱（只填變數名稱，不填 URL）" } },
+            { "id": "avatarApiKeyEnv", "type": "text", "prompt": { "zh-TW": "API key 的 .env 變數名稱（只填變數名稱，不填 key）" } }
+          ]
+        },
+        {
+          "id": "none",
+          "name": { "zh-TW": "D. 不使用 Avatar", "en": "D. No presenter avatar" },
+          "note": { "zh-TW": "畫面只使用主視覺、字幕與其他已確認元素。" }
         }
       ]
     },
     {
       "id": "mascot",
-      "order": 7,
+      "order": 9,
       "type": "single",
-      "prompt": { "zh-TW": "要不要加吉祥物／角色動畫？", "en": "Add a mascot/companion character?" },
-      "skipIf": { "answerNot": { "captions": "designed" } },
+      "prompt": { "zh-TW": "設計字幕旁是否另加吉祥物／陪伴角色？", "en": "Add a separate mascot/companion beside designed captions?" },
+      "skipIf": { "answerNot": { "captions": ["designed", "handwritten-highlight"] } },
       "options": [
         { "id": "none", "name": { "zh-TW": "不加", "en": "No" } },
         { "id": "kit", "name": { "zh-TW": "沿用 subtitle-mascot-kit 的角色", "en": "Reuse the shared kit character" }, "note": { "zh-TW": "站位座標必須配合本專案字幕版位重新確認，不得直接沿用通用座標。" } },
@@ -95,18 +168,25 @@
     },
     {
       "id": "bgm",
-      "order": 8,
+      "order": 10,
       "type": "single",
       "prompt": { "zh-TW": "是否使用背景音樂？", "en": "Background music?" },
       "options": [
         { "id": "none", "name": { "zh-TW": "不使用", "en": "None" } },
-        { "id": "supplied", "name": { "zh-TW": "使用我提供的曲目／音檔", "en": "User-supplied track" }, "followUp": [{ "id": "bgmSource", "type": "text", "prompt": { "zh-TW": "曲目來源／連結（下載前須確認授權與是否需標註）" } }] },
+        {
+          "id": "supplied",
+          "name": { "zh-TW": "使用我提供的曲目／音檔", "en": "User-supplied track" },
+          "followUp": [
+            { "id": "bgmSource", "type": "text", "prompt": { "zh-TW": "曲目來源／連結" } },
+            { "id": "bgmLicense", "type": "text", "prompt": { "zh-TW": "授權與標註方式（例如「已取得商用許可，不需標註」）" } }
+          ]
+        },
         { "id": "library", "name": { "zh-TW": "從已確認可用的音樂庫挑選", "en": "Pick from the cleared library" }, "note": { "zh-TW": "音樂庫路徑在 flow.config.json 的 assets.bgmLibrary；選定後直接隨機取一首，無須逐首確認。" } }
       ]
     },
     {
       "id": "duration",
-      "order": 9,
+      "order": 11,
       "type": "text",
       "prompt": { "zh-TW": "目標片長（秒；Reels 建議 60 秒內，可填「依旁白」）", "en": "Target length in seconds" },
       "default": "依旁白"

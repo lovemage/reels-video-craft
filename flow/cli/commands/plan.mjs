@@ -1,11 +1,12 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { planFor, stages, t, projectsRoot, getMethod } from '../lib/registry.mjs';
+import { planFor, stageOutputsFor, stages, t, projectsRoot, getMethod } from '../lib/registry.mjs';
 import { heading, table, grey, bold, dim, STATUS_MARK, STATUS_LABEL, green, yellow } from '../lib/ui.mjs';
 
 export function run(args) {
   let method = args.method;
   let input = args.input;
+  let voice = args.voice;
   let brief = null;
 
   const project = args._[0];
@@ -18,6 +19,7 @@ export function run(args) {
     brief = JSON.parse(readFileSync(briefPath, 'utf8'));
     method ??= brief.method;
     input ??= brief.input;
+    voice ??= brief.voice ?? undefined;
   }
 
   if (!method) {
@@ -25,7 +27,7 @@ export function run(args) {
     process.exit(1);
   }
 
-  const { method: m, plan } = planFor(method, { input });
+  const { method: m, plan } = planFor(method, { input, voice });
   const done = new Set(brief?.progress?.completed ?? []);
 
   if (args.json) {
@@ -43,7 +45,7 @@ export function run(args) {
             done: done.has(p.stage.id),
             note: p.note || null,
             precondition: p.precondition || null,
-            outputs: p.stage.outputs ?? [],
+            outputs: stageOutputsFor(p.stage, brief),
             command: p.stage.command ?? null,
             rules: p.stage.rules?.['zh-TW'] ?? [],
           })),

@@ -18,12 +18,13 @@ Use the renderer at `/home/ivan-bai/projects/seedance/shared/story-to-handdrawn-
 
 1. Accept inline Chinese story text, a UTF-8 text file, or ordered local images.
 2. Preserve the user's wording. For text input, keep one complete sentence as one beat by default and split only long compound sentences at natural narrative turns.
-3. For uploaded composite pages, automatically crop the handwritten caption and illustration, then derive an aligned black-and-white plate locally.
-4. In direct-cut mode, keep the order `text → bw_full → color`; reveal every stage from left to right.
-5. In page-flip mode, preserve the untouched uploaded master and show it statically before curling the page from the bottom-right corner. Do not add caption, black-and-white, or recoloring stages. Retain a faded version of the source page on the paper underside.
-6. Keep all illustration marks inside the white safe border. Use contained framing and never `cover` cropping.
-7. Produce a silent MP4. Voiceover and optional BGM are post-production tasks.
-8. Report the scene count, duration, output path, and whether the result is plan-only, preview, or final.
+3. For Seedance M4, always pass `--grid 3x3 --max-grid-images 2 --text-mode font`. Pack beats row-major into at most two masters; each master is exactly 3×3. Reject more than 18 beats so the storyboard can be merged before any paid generation.
+4. For uploaded composite pages, automatically crop the handwritten caption and illustration, then derive an aligned black-and-white plate locally.
+5. In direct-cut mode, keep the order `text → bw_full → color`; reveal every stage from left to right.
+6. In page-flip mode, preserve the untouched uploaded master and show it statically before curling the page from the bottom-right corner. Do not add caption, black-and-white, or recoloring stages. Retain a faded version of the source page on the paper underside.
+7. Keep all illustration marks inside the white safe border. Use contained framing and never `cover` cropping.
+8. Produce a silent MP4. Voiceover and optional BGM are post-production tasks.
+9. Report the scene count, duration, output path, and whether the result is plan-only, preview, or final.
 
 ## Commands
 
@@ -37,13 +38,13 @@ cd "$STORY_VIDEO_PROJECT"
 Text-story plan without image generation:
 
 ```bash
-python3 scripts/run_story_video.py --input /absolute/story.txt --title "故事标题" --format 9:16 --mode plan
+python3 scripts/run_story_video.py --input /absolute/story.txt --title "故事标题" --format 9:16 --grid 3x3 --max-grid-images 2 --text-mode font --mode plan
 ```
 
 Prepare Codex Image2 jobs, then import and render:
 
 ```bash
-python3 scripts/run_story_video.py --input /absolute/story.txt --title "故事标题" --format 9:16 --mode generate
+python3 scripts/run_story_video.py --input /absolute/story.txt --title "故事标题" --format 9:16 --grid 3x3 --max-grid-images 2 --text-mode font --mode generate
 python3 scripts/run_story_video.py --mode import
 python3 scripts/run_story_video.py --format 9:16 --mode render
 ```

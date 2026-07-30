@@ -99,10 +99,15 @@ function resolveStage(stage, override) {
 }
 
 /**
- * Resolve the concrete stage plan for a method, applying input-type adjustments
- * and method-specific stage overrides.
+ * Resolve the concrete stage plan for a method, applying input-type and
+ * voice-route adjustments plus method-specific stage overrides.
+ *
+ * tts-gen is voice-driven, not method-driven: methods that run the speech
+ * pipeline declare it "optional", and the confirmed voice answer settles it —
+ * tts turns it required and retires speech-edit (synthesised narration has no
+ * filler or dead air to cut), human retires tts-gen.
  */
-export function planFor(methodIdOrCode, { input } = {}) {
+export function planFor(methodIdOrCode, { input, voice } = {}) {
   const method = getMethod(methodIdOrCode);
   if (!method) throw new Error(`未知的製作方式：${methodIdOrCode}`);
 
@@ -110,18 +115,43 @@ export function planFor(methodIdOrCode, { input } = {}) {
     const override = method.stageOverrides?.[base.id];
     const stage = resolveStage(base, override);
     let status = method.stages[base.id] ?? 'optional';
-    const note = t(override?.note);
+    let note = t(override?.note);
     let precondition = null;
 
     if (input === 'existing-clip' && ['speech-edit', 'transcribe', 'caption-correct'].includes(base.id)) {
       status = 'skip';
+    }
+    if (base.id === 'tts-gen' && status !== 'skip') {
+      if (voice === 'tts') status = 'required';
+      else if (voice) {
+        status = 'skip';
+        note ||= '不需要——配音使用真人錄音。';
+      } else {
+        note ||= '是否要跑由配音答案決定：AI TTS 必跑，真人錄音不跑。';
+      }
+    }
+    if (base.id === 'speech-edit' && voice === 'tts' && status !== 'skip') {
+      status = 'skip';
+      note ||= '不需要——TTS 合成音沒有贅詞與長停頓，voiceover-edited.* 直接由 TTS 輸出衍生。';
+    }
+    if (
+      base.id === 'source-prep' &&
+      ['script-text', 'topic-brief'].includes(input) &&
+      voice === 'tts' &&
+      status !== 'skip'
+    ) {
+      status = 'skip';
+      note ||= '逐字稿已由 intake／series 歸位；voiceover-raw.* 由下一個 tts-gen 階段產生。';
     }
     if (
       ['script-text', 'topic-brief'].includes(input) &&
       ['speech-edit', 'transcribe'].includes(base.id) &&
       status === 'required'
     ) {
-      precondition = '需先依確認的配音方式產生旁白，才能執行此階段';
+      precondition =
+        voice === 'tts' && base.id === 'transcribe'
+          ? '需先完成 TTS 配音生成，才能執行此階段'
+          : '需先依確認的配音方式產生旁白，才能執行此階段';
     }
     if (input === 'voiceover-audio' && base.id === 'source-prep') {
       precondition = '純音檔沒有影片來源，無法做懸浮頭像';
@@ -135,6 +165,16 @@ export function planFor(methodIdOrCode, { input } = {}) {
 
 export function activeStages(plan) {
   return plan.filter((p) => p.status !== 'skip');
+}
+
+/** Resolve outputs whose requirement depends on a confirmed brief answer. */
+export function stageOutputsFor(stage, brief) {
+  const outputs = [...(stage.outputs ?? [])];
+  for (const conditional of stage.conditionalOutputs ?? []) {
+    const {field, equals} = conditional.when ?? {};
+    if (field && brief?.[field] === equals) outputs.push(...(conditional.outputs ?? []));
+  }
+  return [...new Set(outputs)];
 }
 
 export function statusRank(status) {
@@ -155,6 +195,12 @@ export function localConfig() {
 export function projectsRoot() {
   const cfg = localConfig();
   return resolve(REPO_ROOT, cfg.projectsRoot ?? 'production');
+}
+
+/** Root of the upstream content pipeline (topics, master scripts, episodes). */
+export function contentRoot() {
+  const cfg = localConfig();
+  return resolve(REPO_ROOT, cfg.contentRoot ?? 'content');
 }
 
 export function readBrief(project) {

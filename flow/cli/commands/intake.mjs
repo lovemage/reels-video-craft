@@ -9,6 +9,7 @@ import {
   projectsRoot,
   REPO_ROOT,
 } from '../lib/registry.mjs';
+import { composeBrief } from '../lib/brief.mjs';
 import { createPrompter, heading, bold, grey, green, yellow, red } from '../lib/ui.mjs';
 
 /**
@@ -152,7 +153,8 @@ export async function run(args) {
       }
       if (q.skipIf?.answerNot) {
         const [key, needed] = Object.entries(q.skipIf.answerNot)[0];
-        if (answers[key] !== needed) continue;
+        const accepted = Array.isArray(needed) ? needed : [needed];
+        if (!accepted.includes(answers[key])) continue;
       }
 
       if (q.type === 'text') {
@@ -181,31 +183,7 @@ export async function run(args) {
       console.log(yellow(`\n注意：${chosen.code} 需要 .env 設定 ${missingEnv.join('、')}，目前找不到。`));
     }
 
-    const brief = {
-      project: answers.project,
-      createdAt: new Date().toISOString(),
-      input: answers.input,
-      aspect: answers.aspect,
-      aspectSize:
-        answers.aspect === 'custom'
-          ? `${answers.width}x${answers.height}`
-          : (reg.aspects.find((a) => a.id === answers.aspect)?.size ?? null),
-      width: answers.width ?? parseSize(reg, answers.aspect)?.width ?? null,
-      height: answers.height ?? parseSize(reg, answers.aspect)?.height ?? null,
-      fps: Number(args.fps) || 30,
-      method: answers.method,
-      methodCode: chosen.code,
-      voice: answers.voice ?? null,
-      ttsModel: answers.ttsModel ?? null,
-      ttsVoice: answers.ttsVoice ?? null,
-      captions: answers.captions ?? null,
-      mascot: answers.mascot ?? 'none',
-      bgm: answers.bgm ?? 'none',
-      bgmSource: answers.bgmSource ?? null,
-      targetDuration: answers.duration ?? '依旁白',
-      timeline: { durationSec: null, totalFrames: null, lockedAt: null },
-      progress: { completed: [], notes: {} },
-    };
+    const brief = composeBrief(answers, reg, chosen, { fps: Number(args.fps) || 30 });
 
     mkdirSync(projectDir, { recursive: true });
     writeFileSync(briefPath, JSON.stringify(brief, null, 2) + '\n');
@@ -226,13 +204,6 @@ async function askDimension(pickText, key, prompt) {
   return n;
 }
 
-function parseSize(reg, aspectId) {
-  const size = reg.aspects.find((a) => a.id === aspectId)?.size;
-  if (!size || !/^\d+x\d+$/.test(size)) return null;
-  const [width, height] = size.split('x').map(Number);
-  return { width, height };
-}
-
 function envHas(key) {
   if (process.env[key]) return true;
   const envPath = join(REPO_ROOT, '.env');
@@ -247,10 +218,28 @@ function summarise(brief, method, reg) {
     ['交付尺寸', `${brief.aspect}  ${brief.aspectSize ?? ''}  @ ${brief.fps}fps`],
     ['製作方式', `${method.code} ${t(method.name)}`],
     ['配音', brief.voice === 'tts' ? `AI TTS · ${brief.ttsModel} · ${brief.ttsVoice}` : brief.voice ?? '—'],
-    ['字幕', brief.captions ?? '—'],
+    [
+      '字幕',
+      `${brief.captions ?? '—'} · ${
+        brief.captionLanguages === 'custom'
+          ? brief.captionLanguageSpec
+          : (brief.captionLanguages ?? '—')
+      }`,
+    ],
+    ['Avatar', describeAvatar(brief)],
     ['吉祥物', brief.mascot],
-    ['BGM', brief.bgm + (brief.bgmSource ? ` · ${brief.bgmSource}` : '')],
+    ['BGM', brief.bgm + (brief.bgmSource ? ` · ${brief.bgmSource}` : '') + (brief.bgmLicense ? ` · ${brief.bgmLicense}` : '')],
     ['目標片長', brief.targetDuration],
   ];
   rows.forEach(([k, v]) => console.log(`  ${grey(k.padEnd(6))} ${v}`));
+}
+
+function describeAvatar(brief) {
+  if (brief.avatarMode === 'live-video') return `真人影片 · ${brief.avatarSource}`;
+  if (brief.avatarMode === 'anime-presenter') return `二次元人物 · ${brief.avatarAsset}`;
+  if (brief.avatarMode === 'ai-lipsync') {
+    return `AI lip-sync · ${brief.avatarProvider} · ${brief.avatarSource} · ${brief.avatarEndpointEnv}`;
+  }
+  if (brief.avatarMode === 'none') return '不使用';
+  return '—';
 }
